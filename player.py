@@ -1,10 +1,10 @@
-from board import Board
-
+from game import Game
+from move_command import MoveCommand
 class Player:
-    def __init__(self, board: Board):
-        self._color = None
+    def __init__(self, game: Game, color: str):
+        self._game = game
+        self._color = color
         self._pieces = []
-        self._board = board
 
     def _enumerate_possible_moves(self):
         pass
@@ -14,6 +14,9 @@ class Player:
 
 class Human(Player):
     def get_move(self):
+        pass
+
+    def _is_valid_move(self):
         pass
 
 class Random_AI(Player):

@@ -1,11 +1,12 @@
-from move import Move
+from move_command import MoveCommand
 
 class Board:
     def __init__(self, size: int):
         self.squares = [[([None] * size) for _ in range(size)] for _ in range(3)]
+        self._size = size
 
-    def update(self, next_move: Move):
+    def update(self):
         pass
 
     def __str__(self):
-        pass
+        return "test"
