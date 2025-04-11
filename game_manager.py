@@ -19,6 +19,7 @@ class GameManager():
         self._move.execute()
         print(self._move)
         self._swap_players()
+        self._turn += 1
 
     def _swap_players(self):
         temp = self._current_player

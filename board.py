@@ -1,4 +1,6 @@
 from piece import Piece
+from memento import Snapshot
+from copy import deepcopy
 class Board():
     def __init__(self, size: int):
         self._size = size
@@ -10,28 +12,38 @@ class Board():
             self._squares[0][0][i] = Piece("black", f'{i+1}', (0, 0, i))
         for i in range(3):
             letter = chr(ord('A') + i)
-            self._squares[3][3][i] = Piece("white", f'{letter}', (3, 3, i))
+            self._squares[self._size-1][self._size-1][i] = Piece("white", f'{letter}', (self._size-1, self._size-1, i))
 
     def get_neighbors(self, pos) -> list:
         neighbors = []
         directions = ((1, 0, 0), (-1, 0, 0), (0, 1, 0), (0, -1, 0), (0, 0, 1), (0, 0, -1))
         for direction in directions:
-            new_pos = (pos[0] + direction[0], pos[1] + direction[1], pos[2] + direction[2])
-            if self._valid_pos(new_pos):
-                neighbors.append(new_pos)
+            row, col, era = pos[0] + direction[0], pos[1] + direction[1], pos[2] + direction[2]
+            if self._valid_pos(row, col, era):
+                neighbors.append(self._squares[row, col, era])
         return neighbors
 
-    def _valid_pos(self, pos) -> bool:
-        if pos[0] < 0 or pos[0] >= self._size:
+    def _valid_pos(self, row, col, era) -> bool:
+        if row < 0 or row >= self._size:
             return False
-        if pos[1] < 0 or pos[1] >= self._size:
+        if col < 0 or col >= self._size:
             return False
-        if pos[2] < 0 or pos[2] >= 2:
+        if era < 0 or era >= 2:
             return False
         return True
+    
+    def save(self):
+        return Snapshot(self._zip_state())
+    
+    def restore(self, snapshot: Snapshot):
+        self._unzip_state(snapshot.get_state())
 
-    def _get_piece(self, row, col, era):
-        return self._squares[row][col][era]
+    def _zip_state(self) -> tuple:
+        return (self._size, deepcopy(self._squares))
+    
+    def _unzip_state(self, state):
+        self._size = state[0]
+        self._squares = state[1]
 
     def __str__(self):
         result = []
@@ -59,7 +71,7 @@ class Board():
                 if j % 2 == 0:
                     result.append('|')
                 else:
-                    piece = self._get_piece(row, j // 2, i)
+                    piece = self._squares(row, j // 2, i)
                     if piece == None:
                         result.append(" ")
                     else:
