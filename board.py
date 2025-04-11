@@ -1,7 +1,16 @@
+from piece import Piece
 class Board():
     def __init__(self, size: int):
-        self.squares = [[([None] * size) for _ in range(size)] for _ in range(3)]
         self._size = size
+        self._squares = [[([None] * 3) for _ in range(size)] for _ in range(size)]
+        self._setup()
+
+    def _setup(self):
+        for i in range(3):
+            self._squares[0][0][i] = Piece('b', f'{i+1}', (0, 0, i))
+        for i in range(3):
+            letter = chr(ord('A') + i)
+            self._squares[3][3][i] = Piece('w', f'{letter}', (3, 3, i))
 
     def get_neighbors(self, pos) -> list:
         neighbors = []
