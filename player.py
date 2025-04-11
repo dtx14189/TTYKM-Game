@@ -21,6 +21,7 @@ class Player():
 class Human(Player):
     def get_move(self):
         piece_to_move = input("Select a copy to move\n")
+        
         # if piece_to_move._valid_moves
 
     def _is_valid_move(self):
