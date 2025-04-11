@@ -71,7 +71,7 @@ class Board():
                 if j % 2 == 0:
                     result.append('|')
                 else:
-                    piece = self._squares(row, j // 2, i)
+                    piece = self._squares[row][j // 2][i]
                     if piece == None:
                         result.append(" ")
                     else:

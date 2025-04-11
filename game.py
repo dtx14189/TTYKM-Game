@@ -1,13 +1,17 @@
 from board import Board
 from enum_eras import Era
+from player import Player
 class Game():
     def __init__(self):
+        self._current_player: Player = Player(self, "white")
+        self._other_player: Player = Player(self, "black")
+        self._turn = 1
         self._board = Board(4)
         self._white_focus = Era.PAST
         self._black_focus = Era.FUTURE
 
-    def update(self, player, piece, move_direction1, move_direction2, new_focus_era):
-        if move_direction1:
+    def update(self, piece, move_direction1, move_direction2, new_focus_era):
+        pass
             
 
     @staticmethod 
@@ -25,7 +29,12 @@ class Game():
             return (row, col, era + 1)
         elif direction == 'b':
             return (row, col, era - 1)
-        
+    
+    def _swap_players(self):
+        temp = self._current_player
+        self._current_player = self._other_player
+        self._other_player = temp
+
     @staticmethod
     def _indent_focus(focus):
         if focus == Era.PAST:
@@ -38,7 +47,8 @@ class Game():
     def __str__(self):
         black_focus = Game._indent_focus(self._black_focus) + "black\n"
         white_focus = Game._indent_focus(self._white_focus) + "white\n"
-        result = black_focus + str(self._board) + white_focus
+        turn_player = f"Turn: {self._turn}, Current player: {self._current_player.get_color()}\n"
+        result = black_focus + str(self._board) + white_focus + turn_player
         return result
 
 
