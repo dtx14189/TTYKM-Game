@@ -1,7 +1,7 @@
 from game import Game
 from piece import Piece
 
-class MoveCommand:
+class MoveCommand():
     def __init__(self, game: Game, piece: Piece, move_direction1, move_direction2, new_focus_era):
         self._game = game
         self._piece = piece

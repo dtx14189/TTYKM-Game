@@ -2,7 +2,7 @@ from move_command import MoveCommand
 from game import Game
 from player import Player
 
-class GameManager:
+class GameManager():
     def __init__(self):
         self._game = Game()
         self._current_player: Player = Player(self._game, 'w')

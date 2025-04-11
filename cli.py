@@ -1,6 +1,6 @@
 import sys
 from game_manager import GameManager
-class CLI:
+class CLI():
     def __init__(self):
         self._game_manager = GameManager()
 

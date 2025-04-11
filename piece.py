@@ -1,5 +1,5 @@
 from board import Board
-class Piece:
+class Piece():
     def __init__(self, color, name, pos):
         self._color = color
         self._name = name

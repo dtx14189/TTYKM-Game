@@ -1,6 +1,6 @@
 from game import Game
 from move_command import MoveCommand
-class Player:
+class Player():
     def __init__(self, game: Game, color: str):
         self._game = game
         self._color = color
