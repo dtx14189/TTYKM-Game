@@ -32,18 +32,18 @@ class Board():
             return False
         return True
     
-    def save(self):
-        return Snapshot(self._zip_state())
+    # def save(self):
+    #     return Snapshot(self._zip_state())
     
-    def restore(self, snapshot: Snapshot):
-        self._unzip_state(snapshot.get_state())
+    # def restore(self, snapshot: Snapshot):
+    #     self._unzip_state(snapshot.get_state())
 
-    def _zip_state(self) -> tuple:
-        return (self._size, deepcopy(self._squares))
+    # def _zip_state(self) -> tuple:
+    #     return (self._size, deepcopy(self._squares))
     
-    def _unzip_state(self, state):
-        self._size = state[0]
-        self._squares = state[1]
+    # def _unzip_state(self, state):
+    #     self._size = state[0]
+    #     self._squares = state[1]
 
     def __str__(self):
         result = []
