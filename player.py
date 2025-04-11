@@ -4,7 +4,7 @@ class Player:
     def __init__(self, game: Game, color: str):
         self._game = game
         self._color = color
-        self._pieces = []
+        self._pieces = {}
 
     def _enumerate_possible_moves(self):
         pass
@@ -14,7 +14,8 @@ class Player:
 
 class Human(Player):
     def get_move(self):
-        pass
+        piece_to_move = input("Select a copy to move\n")
+        # if piece_to_move._valid_moves
 
     def _is_valid_move(self):
         pass

@@ -8,7 +8,7 @@ class CLI:
         while True:
             self._display_game()
             self._game_end()
-            self._play_move()
+            self._play_turn()
 
     def _display_game(self):
         print(self._game_manager)
@@ -21,8 +21,8 @@ class CLI:
             else:
                 sys.exit(0)
 
-    def _play_move(self):
-        self._game_manager.play_move()
+    def _play_turn(self):
+        self._game_manager.play_turn()
 
 if __name__ == "__main__":
     CLI().run()
