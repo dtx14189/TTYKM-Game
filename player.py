@@ -4,7 +4,6 @@ class Player():
     def __init__(self, game, color: str):
         self._game = game
         self._color = color
-        self._supply = 4
         self._pieces = {}
 
     def get_color(self):
@@ -12,9 +11,6 @@ class Player():
     
     def get_move(self):
         raise NotImplementedError()
-
-    def decrement_supply(self):
-        self._supply -= 1
 
     def _enumerate_possible_moves(self):
         pass
