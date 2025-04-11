@@ -6,8 +6,9 @@ from copy import deepcopy
 class GameManager():
     def __init__(self):
         self._game = Game()
-        self._current_player: Player = Player(self._game, 'w')
-        self._other_player: Player = Player(self._game, 'b')
+        self._current_player: Player = Player(self._game, "white")
+        self._other_player: Player = Player(self._game, "black")
+        self._turn = 1
         self._move: MoveCommand = None
 
     def is_game_end(self):
@@ -41,4 +42,4 @@ class GameManager():
 
     def __str__(self):
         print("---------------------------------")
-        return f"{self._game}"
+        return f"{self._game}Turn: {self._turn}, Current player: {self._current_player.get_color()}"

@@ -6,3 +6,6 @@ class Piece():
     
     def valid_moves(self, board):
         pass
+
+    def __str__(self):
+        return f"{self._name}"

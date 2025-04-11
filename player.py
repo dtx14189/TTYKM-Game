@@ -6,11 +6,17 @@ class Player():
         self._color = color
         self._pieces = {}
 
-    def _enumerate_possible_moves(self):
-        pass
-
+    def get_color(self):
+        return self._color
+    
     def get_move(self):
         raise NotImplementedError()
+
+    def _enumerate_possible_moves(self):
+        pass
+    
+    
+   
 
 class Human(Player):
     def get_move(self):
