@@ -11,12 +11,9 @@ class GameManager():
         return True
 
     def play_turn(self):
-        # self._move = self._game.get_move()
-        # self._move.execute()
-        # print(self._move)
-        # self._swap_players()
-        # self._turn += 1
-        pass 
+        self._move = self._game.get_move()
+        self._move.execute()
+        print(self._move)
 
     def save(self):
         return Snapshot(self._zip_state())

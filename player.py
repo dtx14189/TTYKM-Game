@@ -20,7 +20,7 @@ class Player():
         self._focus = new_focus_era
 
     def _enumerate_possible_moves(self):
-        pass
+        return self._board.valid_moves(self._color)
     
     @staticmethod
     def _indent_focus(focus):
@@ -34,7 +34,6 @@ class Player():
     def __str__(self):
         return Player._indent_focus(self._focus) + self._color + "\n"
    
-
 class Human(Player):
     def get_move(self):
         piece_to_move = input("Select a copy to move\n")

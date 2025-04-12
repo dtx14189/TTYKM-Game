@@ -6,15 +6,29 @@ class Board():
         self._size = size
         self._squares = [[([None] * 3) for _ in range(size)] for _ in range(size)]
         self._setup()
+        self._black_pieces = []
+        self._white_pieces = []
         self._white_supply = 4
         self._black_supply = 4
 
     def _setup(self):
         for i in range(3):
-            self._squares[0][0][i] = Piece("black", f'{i+1}', (0, 0, i))
+            black_piece = Piece("black", f'{i+1}', (0, 0, i))
+            self._black_pieces.append(black_piece)
+            self._squares[0][0][i] = black_piece
         for i in range(3):
             letter = chr(ord('A') + i)
-            self._squares[self._size-1][self._size-1][i] = Piece("white", f'{letter}', (self._size-1, self._size-1, i))
+            white_piece = Piece("white", f'{letter}', (self._size-1, self._size-1, i))
+            self._white_pieces.append(white_piece)
+            self._squares[self._size-1][self._size-1][i] = white_piece
+
+    def valid_moves(self, color: str):
+        if color == "black":
+            pieces = self._black_pieces
+        elif color == "white":
+            pieces = self._white_pieces
+        for piece in pieces:
+            
 
     def get_neighbors(self, pos) -> list:
         neighbors = []
@@ -62,10 +76,13 @@ class Board():
     def _generate_piece(self, color, pos):
         if color == "black":
             name = str(8 - self._black_supply)
-            return Piece(color, name, pos)
+            black_piece = Piece(color, name, pos)
+            self._black_pieces.append(black_piece)
+            return black_piece
         elif color == "white":
             name = chr(ord('H') - self._white_supply)
-            return Piece(color, name, pos)
+            white_piece = Piece(color, name, pos)
+            return white_piece
 
     def _push(self, piece: Piece, direction):
         new_pos = Piece.get_new_pos_with_direction(piece.get_pos(), direction)
@@ -87,6 +104,10 @@ class Board():
     
     def _remove(self, piece: Piece):
         self._set_piece_at_pos(None, piece.get_pos())
+        if piece.get_color() == "black":
+            self._black_pieces.remove(piece)
+        elif piece.get_color() == "white":
+            self._white_pieces.remove(piece)
 
     def _get_piece_at_pos(self, pos):
         row, col, era = pos[0], pos[1], pos[2]
@@ -97,7 +118,6 @@ class Board():
         self._squares[new_row][new_col][new_era] = piece
         if piece is not None:
             piece.set_pos(new_pos)
-
 
     # def save(self):
     #     return Snapshot(self._zip_state())

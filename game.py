@@ -15,16 +15,13 @@ class Game():
         self._current_player.change_focus_era(new_focus_era)
         self._swap_players()
     
+    def get_move(self):
+        return self._current_player.get_move()
+
     def _swap_players(self):
         temp = self._current_player
         self._current_player = self._other_player
         self._other_player = temp
-    
-    def _change_focus_era(self, new_focus_era):
-        if self._current_player.get_color() == "black":
-            self._black_focus = new_focus_era
-        elif self._current_player.get_color() == "white":
-            self._white_focus = new_focus_era
         
     def __str__(self):
         if self._current_player.get_color() == "black":
@@ -33,7 +30,7 @@ class Game():
         elif self._current_player.get_color() == "white":
             black_focus = str(self._other_player)
             white_focus = str(self._current_player)
-        turn_player = f"Turn: {self._turn}, Current player: {self._current_player.get_color()}\n"
+        turn_player = f"Turn: {self._turn}, Current player: {self._current_player.get_color()}"
         result = black_focus + str(self._board) + white_focus + turn_player
         return result
 
