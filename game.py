@@ -12,6 +12,7 @@ class Game():
         self._board.update(piece, move_direction2)
         self._current_player.change_focus_era(new_focus_era)
         self._swap_players()
+        self._turn += 1
     
     def get_move(self):
         return self._current_player.get_move()

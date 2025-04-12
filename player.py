@@ -76,15 +76,17 @@ class Human(Player):
         if max_moves == 0:
             new_focus = self._prompt_focus_era()
             return MoveCommand(None, None, None, new_focus)
-        piece_to_move = self._prompt_piece_name(self, max_moves_per_piece, max_moves)
-        for move_number in range(max_moves + 1):
+        piece_to_move = self._prompt_piece_name(max_moves_per_piece, max_moves)
+        direction1, direction2 = None, None
+        for move_number in range(1, max_moves + 1):
             if move_number == 1:
                 direction1 = self._prompt_move(piece_to_move, None)
             elif move_number == 2:
                 direction2 = self._prompt_move(piece_to_move, direction1)
         new_focus = self._prompt_focus_era()
-        return self._find_move(piece_to_move, direction1, direction2, new_focus)
-        
+        temp_move = self._find_move(piece_to_move, direction1, direction2, new_focus)
+        return temp_move
+
     def _check_color(self, piece_name: str):
         if self._color == "black":
             return not piece_name.isalpha()
@@ -93,8 +95,11 @@ class Human(Player):
     
     def _max_moves_per_piece(self):
         max_moves_per_piece = {}
-        for piece_name, moves in self._valid_moves:
-            max_moves_per_piece[piece_name] = max(moves, key=lambda move: move.get_num_moves())
+        for piece_name, moves in self._valid_moves.items():
+            if moves is None or len(moves) == 0:
+                max_moves_per_piece[piece_name] = 0
+            else:
+                max_moves_per_piece[piece_name] = max(move.get_num_moves() for move in moves)
         return max_moves_per_piece
 
     def _prompt_piece_name(self, max_moves_per_piece: dict, max_moves: int):
@@ -104,7 +109,7 @@ class Human(Player):
             if piece_to_move not in piece_names_on_board:
                 print("Not a valid copy")
                 continue
-            if self._check_color(piece_to_move):
+            if not self._check_color(piece_to_move):
                 print("That is not your copy")
                 continue
             if self._valid_moves[piece_to_move] is None:
@@ -120,23 +125,31 @@ class Human(Player):
     
     def _prompt_move(self, piece_to_move, prev_direction=None):
         valid_directions = ['n', 'e', 's', 'w', 'f', 'b']
+        if prev_direction is None:
+            move_number = 1
+            move_number_str = "first"
+        else:
+            move_number = 2
+            move_number_str = "second"
         while True:
-            direction = input("Select the first direction to move ['n', 'e', 's', 'w', 'f', 'b']\n")
+            
+            direction = input(f"Select the {move_number_str} direction to move ['n', 'e', 's', 'w', 'f', 'b']\n")
             if direction not in valid_directions:
                 print("Not a valid direction")
                 continue
             moves = self._valid_moves[piece_to_move]
             for move in moves:
-                if prev_direction is None:
-                    if move.directions_match(1, (direction)):
+                if move_number == 1:
+                    if move.directions_match((direction), move_number=1):
                         return direction
-                else:
-                    if move.directions_match(2, (prev_direction, direction)):
+                elif move_number == 2:
+                    if move.directions_match((prev_direction, direction), move_number=2):
                         return direction
             print(f"Cannot move {direction}\n")
 
     def _prompt_focus_era(self):
         valid_focuses = ["past", "present", "future"]
+        focus_to_int = {"past": 0, "present": 1, "future": 2}
         while True:
             new_focus = input("Select the next era to focus on ['past, 'present', 'future]\n")
             if new_focus not in valid_focuses:
@@ -145,11 +158,11 @@ class Human(Player):
             if self._focus == new_focus:
                 print("Cannot select the current era")
                 continue
-            return new_focus
+            return focus_to_int[new_focus]
     
     def _find_move(self, piece_name, direction1, direction2, focus):
         for move in self._valid_moves[piece_name]:
-            if move.direction_matches((direction1, direction2)) and move.focus_matches(focus):
+            if move.directions_match((direction1, direction2)) and move.focus_era_match(focus):
                 return move
         return None
 class Random_AI(Player):

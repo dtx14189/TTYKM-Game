@@ -16,7 +16,7 @@ class MoveCommand():
             return 1
         return 0
     
-    def directions_match(self, move_number, directions):
+    def directions_match(self, directions, move_number=2):
         if move_number == 1:
             if self._move_direction1 == directions[0]:
                 return True

@@ -8,7 +8,7 @@ class Board():
         self._size = size
         self._white_player: Player = white_player
         self._black_player: Player = black_player
-        self._squares = [[([None] * 3) for _ in range(size)] for _ in range(size)]
+        self._squares: list[list[list[Piece]]] = [[([None] * 3) for _ in range(size)] for _ in range(size)]
         self._setup()
         self._caretaker = Caretaker(self)
 
@@ -60,7 +60,7 @@ class Board():
             return False
         if col < 0 or col >= self._size:
             return False
-        if era < 0 or era >= 2:
+        if era < 0 or era > 2:
             return False
         return True
     
@@ -86,15 +86,15 @@ class Board():
     def _backward(self, piece: Piece):
         pos = piece.get_pos()
         new_pos = Board._get_new_pos_with_direction(pos, 'b')
-        self._set_piece_at_pos(pos, self._generate_piece(piece.get_color(), pos))
-        self._set_piece_at_pos(new_pos, piece)
+        self._set_piece_at_pos(self._generate_piece(piece.get_color(), pos), pos)
+        self._set_piece_at_pos(piece, new_pos)
     
     def _generate_piece(self, color, pos):
         if color == "black":
-            name = str(8 - self._black_supply)
+            name = str(8 - self._black_player.get_supply())
         elif color == "white":
-            name = chr(ord('H') - self._white_supply)
-        new_piece = Piece(color, name, pos)
+            name = chr(ord('H') - self._white_player.get_supply())
+        new_piece = Piece(color, name, pos, self)
         player_to_add_to = self._get_player_from_color(color)
         player_to_add_to.add_piece(new_piece)
         player_to_add_to.decrement_supply()
@@ -106,16 +106,16 @@ class Board():
         self._move(piece, new_pos)  
         if other_piece is not None:
             if piece.get_color() == other_piece.get_color():
-                self._remove(piece)
-                self._remove(other_piece)
+                self._eliminate(piece)
+                self._eliminate(other_piece)
             else: # colors are different
                 self._push(other_piece, direction)
         
     def _move(self, piece: Piece, new_pos):
-        self._remove(piece)
+        self._set_piece_at_pos(None, piece.get_pos())
         self._set_piece_at_pos(piece, new_pos)
     
-    def _remove(self, piece: Piece):
+    def _eliminate(self, piece: Piece):
         self._set_piece_at_pos(None, piece.get_pos())
         player_to_remove_from = self._get_player_from_color(piece.get_color())
         player_to_remove_from.remove_piece(piece)
@@ -178,11 +178,19 @@ class Board():
         self._unzip_state(snapshot.get_state())
 
     def _zip_state(self) -> tuple:
-        return (deepcopy(self._squares), deepcopy(self._white_player), (self._black_player))
+        return (deepcopy(self._squares), deepcopy(self._white_player), deepcopy(self._black_player))
 
     def _unzip_state(self, state):
         self._squares = state[0]
+        self._reset_piece_pos()
         self._white_player = state[1]
         self._black_player = state[2]
+
+    def _reset_piece_pos(self):
+        for i in range(self._size):
+            for j in range(self._size):
+                for k in range(3):
+                    if self._squares[i][j][k]:
+                        self._squares[i][j][k].set_pos((i, j, k))
 
         

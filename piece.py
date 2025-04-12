@@ -18,6 +18,7 @@ class Piece():
             if self._board.invalid_move(self, direction1):
                 continue
             caretaker.backup()
+            save_pos = self._pos
             self._board.update(self, direction1)
             for direction2 in directions:
                 if self._board.invalid_move(self, direction2):
@@ -27,6 +28,7 @@ class Piece():
                         new_move = MoveCommand(game, self, direction1, direction2, era)
                         valid_moves.append(new_move)
             caretaker.undo()
+            self._pos = save_pos
         return valid_moves
     
     def get_color(self):
