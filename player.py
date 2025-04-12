@@ -15,6 +15,9 @@ class Player():
     
     def get_move(self):
         raise NotImplementedError()
+    
+    def change_focus_era(self, new_focus_era):
+        self._focus = new_focus_era
 
     def _enumerate_possible_moves(self):
         pass
