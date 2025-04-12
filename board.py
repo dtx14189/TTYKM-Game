@@ -41,7 +41,8 @@ class Board():
     def _piece_enumerate_possible_moves(self, piece: Piece, focus):
         valid_moves = []
         directions = ['n', 'e', 's', 'w', 'f', 'b']
-        eras = [Era.PAST, Era.PRESENT, Era.FUTURE]
+        # eras = [Era.PAST, Era.PRESENT, Era.FUTURE]
+        eras = [0, 1, 2]
         for direction1 in directions:
             if self._invalid_move(piece, direction1):
                 continue

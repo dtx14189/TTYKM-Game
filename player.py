@@ -5,9 +5,11 @@ class Player():
     def __init__(self, color: str, board: Board):
         self._color = color
         if color == "black":
-            self._focus = Era.FUTURE
+            # self._focus = Era.FUTURE
+            self._focus = 2
         elif color == "white":
-            self._focus = Era.PAST
+            # self._focus = Era.PAST
+            self._focus = 0
         self._board: Board = board
         self._valid_moves = None
 
@@ -26,18 +28,18 @@ class Player():
     
     @staticmethod
     def _indent_focus(focus):
-        if focus == Era.PAST:
-            return ' ' * 2
-        elif focus == Era.PRESENT:
-            return ' ' * 14
-        elif focus == Era.FUTURE:
-            return ' ' * 26
-        # if focus == 0:
+        # if focus == Era.PAST:
         #     return ' ' * 2
-        # elif focus == 1:
+        # elif focus == Era.PRESENT:
         #     return ' ' * 14
-        # elif focus == 2:
+        # elif focus == Era.FUTURE:
         #     return ' ' * 26
+        if focus == 0:
+            return ' ' * 2
+        elif focus == 1:
+            return ' ' * 14
+        elif focus == 2:
+            return ' ' * 26
         
     def __str__(self):
         return Player._indent_focus(self._focus) + self._color + "\n"
