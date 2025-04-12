@@ -77,18 +77,18 @@ class Board():
     def _invalid_move(self, piece: Piece, direction):
         new_pos = Board._get_new_pos_with_direction(piece.get_pos(), direction)
         if not self._valid_pos(new_pos):
-            return False
+            return True
         if piece.get_color() == self._get_piece_at_pos(new_pos):
-            return False
+            return True
         if direction == 'f' or direction == 'b':
             if self._get_piece_at_pos(new_pos):
-                return False
+                return True
             if direction == 'b':
                 if piece.get_color() == "black" and self._black_supply <= 0:
-                    return False
+                    return True
                 if piece.get_color() == "white" and self._white_supply <= 0:
-                    return False
-        return True
+                    return True
+        return False
 
     def _valid_pos(self, pos) -> bool:
         row, col, era = pos[0], pos[1], pos[2]
