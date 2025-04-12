@@ -2,61 +2,26 @@ from piece import Piece
 from enum_eras import Era
 from memento import Snapshot, Caretaker
 from copy import deepcopy
-from move_command import MoveCommand
+from player import Player
 class Board():
-    def __init__(self, size: int):
+    def __init__(self, size: int, white_player: Player, black_player: Player):
         self._size = size
-        self._black_pieces: list[Piece] = []
-        self._white_pieces: list[Piece] = []
+        self._white_player: Player = white_player
+        self._black_player: Player = black_player
         self._squares = [[([None] * 3) for _ in range(size)] for _ in range(size)]
         self._setup()
-        self._white_supply = 4
-        self._black_supply = 4
         self._caretaker = Caretaker(self)
 
     def _setup(self):
         for i in range(3):
-            black_piece = Piece("black", f'{i+1}', (0, 0, i))
-            self._black_pieces.append(black_piece)
+            black_piece = Piece("black", f'{i+1}', (0, 0, i), self)
+            self._black_player.add_piece(black_piece)
             self._squares[0][0][i] = black_piece
         for i in range(3):
             letter = chr(ord('A') + i)
-            white_piece = Piece("white", f'{letter}', (self._size-1, self._size-1, i))
-            self._white_pieces.append(white_piece)
+            white_piece = Piece("white", f'{letter}', (self._size-1, self._size-1, i), self)
+            self._white_player.add_piece(white_piece)
             self._squares[self._size-1][self._size-1][i] = white_piece
-
-    def enumerate_possible_moves(self, color: str, focus):
-        if color == "black":
-            pieces = self._black_pieces
-        elif color == "white":
-            pieces = self._white_pieces
-        valid_moves = {}
-        for piece in pieces:
-            if piece.get_era() == focus:
-                valid_moves[piece.get_name()] = self._piece_enumerate_possible_moves(piece, focus)
-            else:
-                valid_moves[piece.get_name()] = None
-        return valid_moves
-    
-    def _piece_enumerate_possible_moves(self, piece: Piece, focus):
-        valid_moves = []
-        directions = ['n', 'e', 's', 'w', 'f', 'b']
-        # eras = [Era.PAST, Era.PRESENT, Era.FUTURE]
-        eras = [0, 1, 2]
-        for direction1 in directions:
-            if self._invalid_move(piece, direction1):
-                continue
-            self._caretaker.backup()
-            self.update(piece, direction1)
-            for direction2 in directions:
-                if self._invalid_move(piece, direction2):
-                    direction2 = None
-                for era in eras:
-                    if era != focus:
-                        new_move = MoveCommand(piece, direction1, direction2, era)
-                        valid_moves.append(new_move)
-            self._caretaker.undo()
-        return valid_moves
 
     @staticmethod 
     def _get_new_pos_with_direction(pos, direction):
@@ -74,7 +39,7 @@ class Board():
         elif direction == 'b':
             return (row, col, era - 1)
     
-    def _invalid_move(self, piece: Piece, direction):
+    def invalid_move(self, piece: Piece, direction):
         new_pos = Board._get_new_pos_with_direction(piece.get_pos(), direction)
         if not self._valid_pos(new_pos):
             return True
@@ -84,9 +49,8 @@ class Board():
             if self._get_piece_at_pos(new_pos):
                 return True
             if direction == 'b':
-                if piece.get_color() == "black" and self._black_supply <= 0:
-                    return True
-                if piece.get_color() == "white" and self._white_supply <= 0:
+                player_to_check_supply = self._get_player_from_color(piece.get_color())
+                if player_to_check_supply.get_supply() <= 0:
                     return True
         return False
 
@@ -128,13 +92,13 @@ class Board():
     def _generate_piece(self, color, pos):
         if color == "black":
             name = str(8 - self._black_supply)
-            black_piece = Piece(color, name, pos)
-            self._black_pieces.append(black_piece)
-            return black_piece
         elif color == "white":
             name = chr(ord('H') - self._white_supply)
-            white_piece = Piece(color, name, pos)
-            return white_piece
+        new_piece = Piece(color, name, pos)
+        player_to_add_to = self._get_player_from_color(color)
+        player_to_add_to.add_piece(new_piece)
+        player_to_add_to.decrement_supply()
+        return new_piece
 
     def _push(self, piece: Piece, direction):
         new_pos = Board._get_new_pos_with_direction(piece.get_pos(), direction)
@@ -153,10 +117,8 @@ class Board():
     
     def _remove(self, piece: Piece):
         self._set_piece_at_pos(None, piece.get_pos())
-        if piece.get_color() == "black":
-            self._black_pieces.remove(piece)
-        elif piece.get_color() == "white":
-            self._white_pieces.remove(piece)
+        player_to_remove_from = self._get_player_from_color(piece.get_color())
+        player_to_remove_from.remove_piece(piece)
 
     def _get_piece_at_pos(self, pos):
         row, col, era = pos[0], pos[1], pos[2]
@@ -168,13 +130,12 @@ class Board():
         if piece is not None:
             piece.set_pos(new_pos)
 
-    def get_piece_names(self):
-        piece_names = []
-        for piece in self._black_pieces:
-            piece_names.append(piece.get_name())
-        for piece in self._white_pieces:
-            piece_names.append(piece.get_name())
-        return piece_names
+    def _get_player_from_color(self, color: str):
+        if color == "black":
+            return self._black_player
+        elif color == "white":
+            return self._white_player
+        
     def __str__(self):
         result = []
         for i in range(2 * self._size + 1):
@@ -217,11 +178,11 @@ class Board():
         self._unzip_state(snapshot.get_state())
 
     def _zip_state(self) -> tuple:
-        return (deepcopy(self._squares), self._black_supply, self._white_supply)
+        return (deepcopy(self._squares), deepcopy(self._white_player), (self._black_player))
 
     def _unzip_state(self, state):
         self._squares = state[0]
-        self._black_supply = state[1]
-        self._white_supply = state[2]
+        self._white_player = state[1]
+        self._black_player = state[2]
 
         

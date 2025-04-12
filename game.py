@@ -2,9 +2,9 @@ from board import Board
 from player import Player, Human
 class Game():
     def __init__(self):
-        self._board = Board(4)
-        self._current_player: Player = Human("white", self._board)
-        self._other_player: Player = Human("black", self._board)
+        self._current_player: Player = Human("white", self)
+        self._other_player: Player = Human("black", self)
+        self._board = Board(4, self._current_player, self._other_player)
         self._turn = 1
 
     def update(self, piece, move_direction1, move_direction2, new_focus_era):
@@ -16,6 +16,9 @@ class Game():
     def get_move(self):
         return self._current_player.get_move()
 
+    def get_piece_names(self):
+        return self._current_player.get_piece_names() + self._other_player.get_piece_names()
+    
     def _swap_players(self):
         temp = self._current_player
         self._current_player = self._other_player

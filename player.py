@@ -1,8 +1,8 @@
-from board import Board
+from piece import Piece
 from move_command import MoveCommand
 from enum_eras import Era
 class Player():
-    def __init__(self, color: str, board: Board):
+    def __init__(self, color: str, game):
         self._color = color
         if color == "black":
             # self._focus = Era.FUTURE
@@ -10,7 +10,9 @@ class Player():
         elif color == "white":
             # self._focus = Era.PAST
             self._focus = 0
-        self._board: Board = board
+        self._game = game
+        self._pieces: list[Piece] = []
+        self._supply = 4
         self._valid_moves = None
 
     def get_color(self):
@@ -23,8 +25,31 @@ class Player():
     def change_focus_era(self, new_focus_era):
         self._focus = new_focus_era
 
+    def get_piece_names(self):
+        piece_names = []
+        for piece in self._pieces:
+            piece_names.append(piece.get_name())
+        return piece_names
+    
+    def add_piece(self, piece: Piece):
+        self._pieces.append(piece)
+
+    def remove_piece(self, piece: Piece):
+        self._pieces.remove(piece)
+
+    def decrement_supply(self):
+        self._supply -= 1
+    
+    def get_supply(self):
+        return self._supply
+    
     def _enumerate_possible_moves(self) -> dict:
-        self._valid_moves = self._board.enumerate_possible_moves(self._color, self._focus)
+        self._valid_moves = {}
+        for piece in self._pieces:
+            if piece.get_era() == self._focus:
+                self._valid_moves[piece.get_name()] = piece.enumerate_possible_moves(self._focus, self._game)
+            else:
+                self._valid_moves[piece.get_name()] = None
     
     @staticmethod
     def _indent_focus(focus):
@@ -73,7 +98,7 @@ class Human(Player):
         return max_moves_per_piece
 
     def _prompt_piece_name(self, max_moves_per_piece: dict, max_moves: int):
-        piece_names_on_board = self._board.get_piece_names()
+        piece_names_on_board = self._game.get_piece_names()
         while True:
             piece_to_move = input("Select a copy to move\n")
             if piece_to_move not in piece_names_on_board:
@@ -92,7 +117,7 @@ class Human(Player):
                 print("Not a valid copy")
                 continue
             return piece_to_move
-
+    
     def _prompt_move(self, piece_to_move, prev_direction=None):
         valid_directions = ['n', 'e', 's', 'w', 'f', 'b']
         while True:
