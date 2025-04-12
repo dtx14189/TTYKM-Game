@@ -1,5 +1,4 @@
 from board import Board
-from piece import Piece
 from enum_eras import Era
 from player import Player
 class Game():
@@ -9,7 +8,7 @@ class Game():
         self._other_player: Player = Player("black", self._board)
         self._turn = 1
 
-    def update(self, piece: Piece, move_direction1, move_direction2, new_focus_era):
+    def update(self, piece, move_direction1, move_direction2, new_focus_era):
         self._board.update(piece, move_direction1)
         self._board.update(piece, move_direction2)
         self._current_player.change_focus_era(new_focus_era)
