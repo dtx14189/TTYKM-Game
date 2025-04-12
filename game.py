@@ -1,11 +1,10 @@
 from board import Board
-from enum_eras import Era
-from player import Player
+from player import Player, Human
 class Game():
     def __init__(self):
         self._board = Board(4)
-        self._current_player: Player = Player("white", self._board)
-        self._other_player: Player = Player("black", self._board)
+        self._current_player: Player = Human("white", self._board)
+        self._other_player: Player = Human("black", self._board)
         self._turn = 1
 
     def update(self, piece, move_direction1, move_direction2, new_focus_era):

@@ -15,7 +15,8 @@ class Player():
         return self._color
     
     def get_move(self):
-        raise NotImplementedError()
+        pass
+        # raise NotImplementedError()
     
     def change_focus_era(self, new_focus_era):
         self._focus = new_focus_era
@@ -31,6 +32,12 @@ class Player():
             return ' ' * 14
         elif focus == Era.FUTURE:
             return ' ' * 26
+        # if focus == 0:
+        #     return ' ' * 2
+        # elif focus == 1:
+        #     return ' ' * 14
+        # elif focus == 2:
+        #     return ' ' * 26
         
     def __str__(self):
         return Player._indent_focus(self._focus) + self._color + "\n"

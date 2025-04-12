@@ -7,7 +7,7 @@ class CLI():
     def run(self):
         while True:
             self._display_game()
-            self._game_end()
+            # self._game_end()
             self._play_turn()
 
     def _display_game(self):
