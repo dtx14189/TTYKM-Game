@@ -2,15 +2,22 @@ from board import Board
 from player import Player, Human
 from memento import Snapshot
 class Game():
-    def __init__(self):
-        self._current_player: Player = Human("white", self)
-        self._other_player: Player = Human("black", self)
-        self._current_player.set_opponent(self._other_player)
-        self._other_player.set_opponent(self._current_player)
+    def __init__(self, setup=True):
+        if not setup:
+            return 
+        self._current_player: Player = Human("white")
+        self._other_player: Player = Human("black")
+        self._setup_players()
         # self._current_player: Player = Human("black", self)
         # self._other_player: Player = Human("white", self)
         self._board = Board(4, white_player=self._current_player, black_player=self._other_player)
         self._turn = 1
+
+    def _setup_players(self):
+        self._current_player.set_opponent(self._other_player)
+        self._other_player.set_opponent(self._current_player)
+        self._current_player.assign_game(self)
+        self._other_player.assign_game(self)
 
     def update(self, piece, move_direction1, move_direction2, new_focus_era):
         self._board.update(piece, move_direction1)
@@ -47,13 +54,8 @@ class Game():
         result = black_focus + str(self._board) + white_focus + turn_player
         return result
     
-    def copy(self):
-        copy_game = Game()
-        copy_game._board = self._board.copy()
-        return copy_game
-    
-    def save(self):
-        copy_game = Game()
+    def _copy(self):
+        copy_game = Game(setup=False)
         copy_game._board = self._board.copy()
         if self._current_player == "white":
             copy_game._current_player = copy_game._board.get_player("white")
@@ -61,18 +63,23 @@ class Game():
         elif self._current_player == "black":
             copy_game._current_player = copy_game._board.get_player("black")
             copy_game._other_player = copy_game._board.get_player("white")
-        copy_game._current_player.assign_game(copy_game)
-        copy_game._other_player.assign_game(copy_game)
-        return Snapshot(self._zip_state())
+        copy_game._setup_players()
+        return copy_game
+    
+    def save(self):
+        copy_game = self._copy()
+        return Snapshot(copy_game._zip_state())
     
     def restore(self, snapshot: Snapshot):
         self._unzip_state(snapshot.get_state())
 
     def _zip_state(self) -> tuple:
-        return None
+        return (self._current_player, self._other_player, self._board)
     
     def _unzip_state(self, state):
-        pass
+        self._current_player = state[0]
+        self._other_player = state[1]
+        self._board = state[2]
 
 
 

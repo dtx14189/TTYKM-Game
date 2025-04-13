@@ -5,7 +5,7 @@ from memento import Caretaker
 from enum_eras import Era
 
 class Player():
-    def __init__(self, color: str, game, focus=None, supply=4):
+    def __init__(self, color: str, focus=None, supply=4):
         self._color = color
         if focus is None:
             if color == "black":
@@ -16,15 +16,13 @@ class Player():
                 self._focus = 0
         else:
             self._focus = focus
-        self._game = game
         self._pieces: list[Piece] = []
         self._supply = supply
         self._valid_moves = None
         self._opponent: 'Player' = None
 
     def copy(self):
-        player_copy = Player(self._color, self._game, self._focus, self._supply)
-        return player_copy
+        return Player(self._color, self._focus, self._supply)
 
     def has_lost(self):
         eras = set()

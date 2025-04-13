@@ -5,11 +5,12 @@ from player import Player
 class Board():
     def __init__(self, size: int, white_player: Player=None, black_player: Player=None, setup=True):
         self._size = size
+        self._squares: list[list[list[Piece]]] = [[([None] * 3) for _ in range(size)] for _ in range(size)]
+        if not setup:
+            return
         self._white_player: Player = white_player
         self._black_player: Player = black_player
-        self._squares: list[list[list[Piece]]] = [[([None] * 3) for _ in range(size)] for _ in range(size)]
-        if setup:
-            self._setup()
+        self._setup()
 
     def _setup(self):
         for i in range(3):
