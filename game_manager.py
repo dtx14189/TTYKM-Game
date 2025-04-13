@@ -1,6 +1,6 @@
 from move_command import MoveCommand
 from game import Game
-from memento import Snapshot, Caretaker
+from memento import Snapshot
 from copy import deepcopy
 class GameManager():
     def __init__(self):

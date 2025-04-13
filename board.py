@@ -80,7 +80,12 @@ class Board():
                         player.add_piece(piece)
         return board_copy
 
-
+    def get_player(self, color):
+        if color == "black":
+            return self._black_player
+        elif color == "white":
+            return self._white_player
+        
     def update(self, piece: Piece, direction):
         if direction is None:
             return

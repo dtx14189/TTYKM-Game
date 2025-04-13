@@ -1,9 +1,12 @@
 from board import Board
 from player import Player, Human
+from memento import Snapshot
 class Game():
     def __init__(self):
         self._current_player: Player = Human("white", self)
         self._other_player: Player = Human("black", self)
+        self._current_player.set_opponent(self._other_player)
+        self._other_player.set_opponent(self._current_player)
         # self._current_player: Player = Human("black", self)
         # self._other_player: Player = Human("white", self)
         self._board = Board(4, white_player=self._current_player, black_player=self._other_player)
@@ -18,9 +21,6 @@ class Game():
     
     def get_move(self):
         return self._current_player.get_move()
-
-    def get_piece_names(self):
-        return self._current_player.get_piece_names() + self._other_player.get_piece_names()
     
     def is_game_end(self):
         lost = self._current_player.has_lost()
@@ -46,6 +46,33 @@ class Game():
         turn_player = f"Turn: {self._turn}, Current player: {self._current_player.get_color()}"
         result = black_focus + str(self._board) + white_focus + turn_player
         return result
+    
+    def copy(self):
+        copy_game = Game()
+        copy_game._board = self._board.copy()
+        return copy_game
+    
+    def save(self):
+        copy_game = Game()
+        copy_game._board = self._board.copy()
+        if self._current_player == "white":
+            copy_game._current_player = copy_game._board.get_player("white")
+            copy_game._other_player = copy_game._board.get_player("black")
+        elif self._current_player == "black":
+            copy_game._current_player = copy_game._board.get_player("black")
+            copy_game._other_player = copy_game._board.get_player("white")
+        copy_game._current_player.assign_game(copy_game)
+        copy_game._other_player.assign_game(copy_game)
+        return Snapshot(self._zip_state())
+    
+    def restore(self, snapshot: Snapshot):
+        self._unzip_state(snapshot.get_state())
+
+    def _zip_state(self) -> tuple:
+        return None
+    
+    def _unzip_state(self, state):
+        pass
 
 
 

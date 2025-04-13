@@ -1,6 +1,7 @@
 import random
 from piece import Piece
 from move_command import MoveCommand
+from memento import Caretaker
 from enum_eras import Era
 
 class Player():
@@ -19,6 +20,7 @@ class Player():
         self._pieces: list[Piece] = []
         self._supply = supply
         self._valid_moves = None
+        self._opponent: 'Player' = None
 
     def copy(self):
         player_copy = Player(self._color, self._game, self._focus, self._supply)
@@ -29,18 +31,24 @@ class Player():
         for piece in self._pieces:
             eras.add(piece.get_era())
         return (len(eras) == 1)
+
+    def assign_game(self, game):
+        self._game = game
+        
+    def set_opponent(self, opponent: 'Player'):
+        self._opponent = opponent
     
     def get_color(self):
         return self._color
     
     def get_move(self):
-        pass
-        # raise NotImplementedError()
+        self._enumerate_possible_moves()
+        self._print_heuristics()
     
     def change_focus_era(self, new_focus_era):
         self._focus = new_focus_era
 
-    def get_piece_names(self):
+    def _get_piece_names(self):
         piece_names = []
         for piece in self._pieces:
             piece_names.append(piece.get_name())
@@ -65,6 +73,12 @@ class Player():
                 self._valid_moves[piece.get_name()] = piece.enumerate_possible_moves(self._focus, self._game)
             else:
                 self._valid_moves[piece.get_name()] = None
+
+    def _list_valid_moves(self):
+        list_valid_moves = []
+        for moves in self._valid_moves.values():
+            list_valid_moves += moves
+        return list_valid_moves
     
     @staticmethod
     def _indent_focus(focus):
@@ -83,12 +97,66 @@ class Player():
         
     def __str__(self):
         return Player._indent_focus(self._focus) + self._color + "\n"
+    
+    def _heuristic_function(self):
+        weight_era_prescence = 3
+        weight_piece_advantage = 2
+        weight_supply = 1
+        weight_centrality = 4
+        weight_focus = 1
+        return (
+            weight_era_prescence * self._compute_era_prescence() +
+            weight_piece_advantage * self._compute_piece_advantage() +
+            weight_supply * self._compute_supply() +
+            weight_centrality * self._compute_centrality() +
+            weight_focus * self._compute_focus()
+        )
+    
+    def _print_heuristics(self):
+        result = []
+        result.append(f"{self._color}'s score:")
+        result.append(f" {self._compute_era_prescence} eras,")
+        result.append(f" {self._compute_piece_advantage} advantage,")
+        result.append(f" {self._compute_supply} supply,")
+        result.append(f" {self._compute_centrality} centrality,")
+        result.append(f" {self._compute_focus} in focus")
+        print(''.join(result))
+
+    def _compute_era_prescence(self):
+        eras = set()
+        for piece in self._pieces:
+            eras.add(piece.get_era())
+        return len(eras)
+    
+    def _compute_piece_advantage(self):
+        return len(self._pieces) - len(self._opponent._pieces)
+
+    def _compute_supply(self):
+        return self._supply
+    
+    def _compute_centrality(self):
+        num_central = 0
+        for piece in self._pieces:
+            num_central += Heuristic_AI._is_central(piece.get_pos(), 4)
+        return num_central
+    
+    @staticmethod
+    def _is_central(pos, size):
+        return (pos[0] > 0 and pos[0] < size-1) and (pos[1] > 0 and pos[1] < size-1)
+    
+    def _compute_focus(self):
+        num_in_focus = 0
+        for piece in self._pieces:
+            if piece.get_era() == self._focus:
+                num_in_focus += 1
+        return num_in_focus
 class Human(Player):
     def get_move(self):
-        self._enumerate_possible_moves()
+        super().get_move()
         max_moves_per_piece = self._max_moves_per_piece()
         max_moves = max(max_moves_per_piece.values())
         if max_moves == 0:
+            print("No copies to move")
             new_focus = self._prompt_focus_era()
             return MoveCommand(self._game, None, None, None, new_focus)
         piece_to_move = self._prompt_piece_name(max_moves_per_piece, max_moves)
@@ -118,7 +186,7 @@ class Human(Player):
         return max_moves_per_piece
 
     def _prompt_piece_name(self, max_moves_per_piece: dict, max_moves: int):
-        piece_names_on_board = self._game.get_piece_names()
+        piece_names_on_board = self._get_piece_names() + self._opponent._get_piece_names()
         while True:
             piece_to_move = input("Select a copy to move\n")
             if piece_to_move not in piece_names_on_board:
@@ -152,7 +220,7 @@ class Human(Player):
             if direction not in valid_directions:
                 print("Not a valid direction")
                 continue
-            moves = self._valid_moves[piece_to_move]
+            moves: list[MoveCommand] = self._valid_moves[piece_to_move]
             for move in moves:
                 if move_number == 1:
                     if move.directions_match((direction, other_direction)):
@@ -165,7 +233,7 @@ class Human(Player):
     def _prompt_focus_era(self):
         focus_to_int = {"past": 0, "present": 1, "future": 2}
         while True:
-            new_focus = input("Select the next era to focus on ['past, 'present', 'future]\n")
+            new_focus = input("Select the next era to focus on ['past, 'present', 'future']\n")
             if new_focus not in focus_to_int:
                 print("Not a valid era")
                 continue
@@ -175,16 +243,28 @@ class Human(Player):
             return focus_to_int[new_focus]
     
     def _find_move(self, piece_name, direction1, direction2, focus):
-        for move in self._valid_moves[piece_name]:
+        moves: list[MoveCommand] = self._valid_moves[piece_name]
+        for move in moves:
             if move.directions_match((direction1, direction2)) and move.focus_era_match(focus):
                 return move
         return None
 class Random_AI(Player):
     def get_move(self):
-        self._enumerate_possible_moves()
-        list_valid_moves = []
-        for moves in self._valid_moves.values():
-            list_valid_moves.append(moves)
-        return random.choice(self._valid_moves)
+        super().get_move()
+        return random.choice(self._list_valid_moves())
 class Heuristic_AI(Player):
-    pass
+    def get_move(self):
+        super().get_move()
+        caretaker = Caretaker(self._game)
+        list_valid_moves: list[MoveCommand] = self._list_valid_moves()
+        best_move = None
+        best_score = float('-inf')
+        for move in list_valid_moves:
+            caretaker.backup()
+            move.execute()
+            score = self._heuristic_function()
+            if score > best_score:
+                best_move = move
+                best_score = score
+            caretaker.undo()
+        return best_move
