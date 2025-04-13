@@ -1,18 +1,26 @@
 from board import Board
-from player import Player, Human
+from player import Player, Human, Random_AI, Heuristic_AI
 from memento import Snapshot
 class Game():
-    def __init__(self, setup=True):
+    def __init__(self, setup=True, white_player_type="human", black_player_type="human"):
         if not setup:
             return 
-        self._current_player: Player = Human("white")
-        self._other_player: Player = Human("black")
+        self._current_player = self._create_player("white", white_player_type)
+        self._other_player: Player = self._create_player("black", black_player_type)
         self._setup_players()
         # self._current_player: Player = Human("black", self)
         # self._other_player: Player = Human("white", self)
         self._board = Board(4, white_player=self._current_player, black_player=self._other_player)
         self._turn = 1
 
+    def _create_player(self, color: str, type: str):
+        if type == "human":
+            return Human(color)
+        elif type == "random":
+            return Random_AI(color)
+        elif type == "heuristic":
+            return Heuristic_AI(color)
+        
     def _setup_players(self):
         self._current_player.set_opponent(self._other_player)
         self._other_player.set_opponent(self._current_player)
@@ -29,6 +37,15 @@ class Game():
     def get_move(self):
         return self._current_player.get_move()
     
+    def get_score(self):
+        if self._current_player.get_color() == "white":
+            white_heuristics = self._current_player.get_heuristics()
+            black_heuristics = self._other_player.get_heuristics()
+        elif self._current_player.get_color() == "black":
+            white_heuristics = self._other_player.get_heuristics()
+            black_heuristics = self._current_player.get_heuristics()
+        return f"{white_heuristics}\n{black_heuristics}"
+
     def is_game_end(self):
         lost = self._current_player.has_lost()
         if lost:

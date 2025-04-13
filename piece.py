@@ -1,12 +1,17 @@
 from move_command import MoveCommand
 class Piece():
     """Purely meant for storing attributes of a piece"""
-    def __init__(self, color: str, name: str, pos: tuple, board):
+    def __init__(self, color: str, name: str, pos: tuple):
         self._color = color
         self._name = name
         self._pos = pos
-        self._board = board
     
+    def copy(self):
+        return Piece(self._color, self._name, self._pos)
+
+    def assign_board(self, board):
+        self._board = board
+
     def enumerate_possible_moves(self, focus, game):
         valid_moves = []
         directions = ['n', 'e', 's', 'w', 'f', 'b']

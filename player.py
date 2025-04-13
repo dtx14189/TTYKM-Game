@@ -18,12 +18,17 @@ class Player():
             self._focus = focus
         self._pieces: list[Piece] = []
         self._supply = supply
-        self._valid_moves = None
-        self._opponent: 'Player' = None
 
     def copy(self):
-        return Player(self._color, self._focus, self._supply)
+        raise NotImplementedError()
 
+    def _copy_pieces_from_other(self, other: 'Player'):
+        for piece in other._pieces:
+            self._pieces.append(piece.copy())
+
+    def get_pieces(self):
+        return self._pieces
+    
     def has_lost(self):
         eras = set()
         for piece in self._pieces:
@@ -41,12 +46,6 @@ class Player():
     
     def get_move(self):
         self._enumerate_possible_moves()
-        if self._color == "white":
-            self._print_heuristics()
-            self._opponent._print_heuristics()
-        elif self._color == "black":
-            self._opponent._print_heuristics()
-            self._print_heuristics()
     
     def change_focus_era(self, new_focus_era):
         self._focus = new_focus_era
@@ -69,13 +68,41 @@ class Player():
     def get_supply(self):
         return self._supply
     
-    def _enumerate_possible_moves(self) -> dict:
-        self._valid_moves = {}
+    def _enumerate_possible_moves(self):
+        self._valid_moves: dict[str, list[MoveCommand]] = {}
         for piece in self._pieces:
             if piece.get_era() == self._focus:
                 self._valid_moves[piece.get_name()] = piece.enumerate_possible_moves(self._focus, self._game)
             else:
-                self._valid_moves[piece.get_name()] = None
+                self._valid_moves[piece.get_name()] = []
+        
+        self._valid_moves["none"] = []
+        eras = [0, 1, 2]
+        for era in eras:
+            if self._focus != era:
+                self._valid_moves["none"].append(MoveCommand(self._game, None, None, None, era))
+        self._filter_valid_moves()
+
+    def _filter_valid_moves(self):
+        self._new_valid_moves: dict[str, list[MoveCommand]] = {}
+        max_moves_per_piece = self._max_moves_per_piece()
+        self._move_len = max(max_moves_per_piece.values())
+        for piece_name, moves in self._valid_moves.items():
+            self._new_valid_moves[piece_name] = []
+            for move in moves:
+                if move.get_num_moves() == self._move_len:
+                    self._new_valid_moves[piece_name].append(move)
+        self._valid_moves = self._new_valid_moves
+
+    def _max_moves_per_piece(self):
+        max_moves_per_piece = {}
+        for piece_name, moves in self._valid_moves.items():
+            if len(moves) == 0:
+                max_moves_per_piece[piece_name] = 0
+            else:
+                max_moves_per_piece[piece_name] = max(move.get_num_moves() for move in moves)
+        return max_moves_per_piece
+
 
     def _list_valid_moves(self):
         list_valid_moves = []
@@ -117,7 +144,7 @@ class Player():
             weight_focus * self._compute_focus()
         )
     
-    def _print_heuristics(self):
+    def get_heuristics(self):
         result = []
         result.append(f"{self._color}'s score:")
         result.append(f" {self._compute_era_prescence()} eras,")
@@ -125,7 +152,7 @@ class Player():
         result.append(f" {self._compute_supply()} supply,")
         result.append(f" {self._compute_centrality()} centrality,")
         result.append(f" {self._compute_focus()} in focus")
-        print(''.join(result))
+        return ''.join(result)
 
     def _compute_era_prescence(self):
         eras = set()
@@ -156,17 +183,21 @@ class Player():
                 num_in_focus += 1
         return num_in_focus
 class Human(Player):
+    def copy(self):
+        copy_human = Human(self._color, self._focus, self._supply)
+        copy_human._copy_pieces_from_other(self)
+        return copy_human
+    
     def get_move(self):
         super().get_move()
-        max_moves_per_piece = self._max_moves_per_piece()
-        max_moves = max(max_moves_per_piece.values())
-        if max_moves == 0:
+        if self._move_len == 0:
             print("No copies to move")
             new_focus = self._prompt_focus_era()
-            return MoveCommand(self._game, None, None, None, new_focus)
-        piece_to_move = self._prompt_piece_name(max_moves_per_piece, max_moves)
+            temp_move = self._find_move("none", None, None, new_focus)
+            return temp_move
+        piece_to_move = self._prompt_piece_name()
         direction1, direction2 = None, None
-        for move_number in range(1, max_moves + 1):
+        for move_number in range(1, self._move_len + 1):
             if move_number == 1:
                 direction1 = self._prompt_move(piece_to_move)
             elif move_number == 2:
@@ -180,17 +211,8 @@ class Human(Player):
             return not piece_name.isalpha()
         elif self._color == "white":
             return piece_name.isalpha()
-    
-    def _max_moves_per_piece(self):
-        max_moves_per_piece = {}
-        for piece_name, moves in self._valid_moves.items():
-            if moves is None or len(moves) == 0:
-                max_moves_per_piece[piece_name] = 0
-            else:
-                max_moves_per_piece[piece_name] = max(move.get_num_moves() for move in moves)
-        return max_moves_per_piece
 
-    def _prompt_piece_name(self, max_moves_per_piece: dict, max_moves: int):
+    def _prompt_piece_name(self):
         piece_names_on_board = self._get_piece_names() + self._opponent._get_piece_names()
         while True:
             piece_to_move = input("Select a copy to move\n")
@@ -200,16 +222,19 @@ class Human(Player):
             if not self._check_color(piece_to_move):
                 print("That is not your copy")
                 continue
-            if self._valid_moves[piece_to_move] is None:
+            if not self._check_era(piece_to_move):
                 print("Cannot select a copy from an inactive era")
                 continue
             if len(self._valid_moves[piece_to_move]) == 0:
                 print("That copy cannot move")
                 continue
-            if max_moves_per_piece[piece_to_move] < max_moves:
-                print("Not a valid copy")
-                continue
             return piece_to_move
+    
+    def _check_era(self, piece_name: str):
+        for piece in self._pieces:
+            if piece.get_name() == piece_name:
+                return piece.get_era() == self._focus
+        return False
     
     def _prompt_move(self, piece_to_move, other_direction=None):
         valid_directions = ['n', 'e', 's', 'w', 'f', 'b']
@@ -254,10 +279,20 @@ class Human(Player):
                 return move
         return None
 class Random_AI(Player):
+    def copy(self):
+        copy_random_ai = Random_AI(self._color, self._focus, self._supply)
+        copy_random_ai._copy_pieces_from_other(self)
+        return copy_random_ai
+    
     def get_move(self):
         super().get_move()
         return random.choice(self._list_valid_moves())
 class Heuristic_AI(Player):
+    def copy(self):
+        copy_heuristic_ai = Heuristic_AI(self._color, self._focus, self._supply)
+        copy_heuristic_ai._copy_pieces_from_other(self)
+        return copy_heuristic_ai
+     
     def get_move(self):
         super().get_move()
         caretaker = Caretaker(self._game)

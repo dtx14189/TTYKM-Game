@@ -3,10 +3,13 @@ from game import Game
 from memento import Snapshot
 from copy import deepcopy
 class GameManager():
-    def __init__(self):
-        self._game = Game()
+    def __init__(self, **kwargs):
+        self._game = Game(**kwargs)
         self._move: MoveCommand = None
 
+    def get_score(self):
+        return self._game.get_score()
+    
     def is_game_end(self):
         return self._game.is_game_end()
 

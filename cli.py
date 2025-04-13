@@ -5,7 +5,13 @@ class CLI():
         pass
 
     def run(self):
-        self._game_manager = GameManager()
+        if len(sys.argv) == 1:
+            self._game_manager = GameManager()
+        elif len(sys.argv) == 2:
+            self._game_manager = GameManager(white_player_type=sys.argv[1])
+        elif len(sys.argv) == 3:
+            self._game_manager = GameManager(white_player_type=sys.argv[1], black_player_type=sys.argv[2])
+
         while True:
             self._display_game()
             self._game_end()
@@ -13,6 +19,7 @@ class CLI():
 
     def _display_game(self):
         print(self._game_manager)
+        print(self._game_manager.get_score())
 
     def _game_end(self):
         if self._game_manager.is_game_end():

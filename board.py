@@ -14,15 +14,14 @@ class Board():
 
     def _setup(self):
         for i in range(3):
-            black_piece = Piece("black", f'{i+1}', (0, 0, i), self)
+            black_piece = Piece("black", f'{i+1}', (0, 0, i))
+            black_piece.assign_board(self)
             self._black_player.add_piece(black_piece)
             self._squares[0][0][i] = black_piece
-        # black_piece = Piece("black", "1", (0, 0, 0), self)
-        # self._black_player.add_piece(black_piece)
-        # self._squares[0][0][0] = black_piece
         for i in range(3):
             letter = chr(ord('A') + i)
-            white_piece = Piece("white", f'{letter}', (self._size-1, self._size-1, i), self)
+            white_piece = Piece("white", f'{letter}', (self._size-1, self._size-1, i))
+            white_piece.assign_board(self)
             self._white_player.add_piece(white_piece)
             self._squares[self._size-1][self._size-1][i] = white_piece
 
@@ -69,16 +68,17 @@ class Board():
     
     def copy(self):
         board_copy = Board(self._size, setup=False)
-        board_copy._squares = deepcopy(self._squares)
         board_copy._white_player = self._white_player.copy()
         board_copy._black_player = self._black_player.copy()
-        for i in range(board_copy._size):
-            for j in range(board_copy._size):
-                for k in range(3):
-                    piece = board_copy.get_piece_at_pos((i, j, k))
-                    if piece is not None:
-                        player = board_copy._get_player_from_color(piece.get_color())
-                        player.add_piece(piece)
+
+        for piece in board_copy._white_player.get_pieces():
+            board_copy._set_piece_at_pos(piece, piece.get_pos())
+            piece.assign_board(board_copy)
+
+        for piece in board_copy._black_player.get_pieces():
+            board_copy._set_piece_at_pos(piece, piece.get_pos())
+            piece.assign_board(board_copy)
+
         return board_copy
 
     def get_player(self, color):
@@ -117,7 +117,8 @@ class Board():
             name = str(8 - self._black_player.get_supply())
         elif color == "white":
             name = chr(ord('H') - self._white_player.get_supply())
-        new_piece = Piece(color, name, pos, self)
+        new_piece = Piece(color, name, pos)
+        new_piece.assign_board(self)
         player_to_add_to = self._get_player_from_color(color)
         player_to_add_to.add_piece(new_piece)
         player_to_add_to.decrement_supply()
