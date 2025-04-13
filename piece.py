@@ -1,6 +1,5 @@
 from move_command import MoveCommand
 class Piece():
-    """Purely meant for storing attributes of a piece"""
     def __init__(self, color: str, name: str, pos: tuple):
         self._color = color
         self._name = name

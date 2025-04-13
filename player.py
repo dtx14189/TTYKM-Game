@@ -125,7 +125,7 @@ class Player():
             return ' ' * 26
         
     def __str__(self):
-        return Player._indent_focus(self._focus) + self._color + "\n"
+        return Player._indent_focus(self._focus) + self._color + "  \n"
     
     def _heuristic_function(self):
         if self._opponent.has_lost():
@@ -262,7 +262,7 @@ class Human(Player):
     def _prompt_focus_era(self):
         focus_to_int = {"past": 0, "present": 1, "future": 2}
         while True:
-            new_focus = input("Select the next era to focus on ['past, 'present', 'future']\n")
+            new_focus = input("Select the next era to focus on ['past', 'present', 'future']\n")
             if new_focus not in focus_to_int:
                 print("Not a valid era")
                 continue
