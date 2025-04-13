@@ -2,7 +2,7 @@ from board import Board
 from player import Player, Human, Random_AI, Heuristic_AI
 from memento import Snapshot
 class Game():
-    def __init__(self, setup=True, white_player_type="human", black_player_type="human"):
+    def __init__(self, white_player_type, black_player_type, setup=True):
         if not setup:
             return
         self._current_player = self._create_player("white", white_player_type)
@@ -89,7 +89,7 @@ class Game():
             return board.get_player("black"), board.get_player("white")
         
     def copy(self):
-        copy_game = Game(setup=False)
+        copy_game = Game(None, None, setup=False)
         copy_game._turn = self._turn
         copy_game._board = self._board.copy()
         copy_game._current_player, copy_game._other_player = self._get_players_from_board(copy_game._board)
