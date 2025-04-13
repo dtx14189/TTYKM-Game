@@ -25,7 +25,7 @@ class GameManager():
         self._unzip_state(snapshot.get_state())
 
     def _zip_state(self) -> tuple:
-        return (deepcopy(self._game), deepcopy(self._move))
+        return (deepcopy(self._game), self._move)
     
     def _unzip_state(self, state):
         self._game = state[0]

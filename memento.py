@@ -13,6 +13,7 @@ class Snapshot(Memento):
 class Caretaker():
     def __init__(self, originator):
         self._history = []
+        self._undo_chain = []
         self._originator = originator
 
     def backup(self):
@@ -21,7 +22,7 @@ class Caretaker():
     def undo(self):
         if not len(self._history):
             return
-
+        
         memento = self._history.pop()
         self._originator.restore(memento)
 

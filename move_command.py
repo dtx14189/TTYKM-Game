@@ -7,7 +7,11 @@ class MoveCommand():
         self._new_focus_era = new_focus_era
     
     def generate_version(self, game):
-        piece_consistent_with_game = game.search_piece(self._piece.get_name())
+        if self._piece is not None: # Move(A, west, north, future)
+            piece_consistent_with_game = game.search_piece(self._piece.get_name())
+        else: # Move(None, None, None, future)
+            piece_consistent_with_game = None
+        
         return MoveCommand(game, piece_consistent_with_game, self._move_direction1, self._move_direction2, self._new_focus_era)
     
     def execute(self):
