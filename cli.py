@@ -1,18 +1,19 @@
 import sys
 from game_manager import GameManager
 
-# sys.stdin = open("commands.txt")
+sys.stdin = open("commands.txt")
 class CLI():
     def __init__(self):
         pass
 
     def run(self):
-        if len(sys.argv) == 1:
-            self._game_manager = GameManager()
-        elif len(sys.argv) == 2:
-            self._game_manager = GameManager(white_player_type=sys.argv[1])
-        elif len(sys.argv) == 3:
-            self._game_manager = GameManager(white_player_type=sys.argv[1], black_player_type=sys.argv[2])
+        # if len(sys.argv) == 1:
+        #     self._game_manager = GameManager()
+        # elif len(sys.argv) == 2:
+        #     self._game_manager = GameManager(white_player_type=sys.argv[1])
+        # elif len(sys.argv) == 3:
+        #     self._game_manager = GameManager(white_player_type=sys.argv[1], black_player_type=sys.argv[2])
+        self._game_manager = GameManager(white_player_type="human", black_player_type="heuristic")
 
         while True:
             self._display_game()

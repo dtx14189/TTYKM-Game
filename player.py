@@ -86,7 +86,7 @@ class Player():
     def _filter_valid_moves(self):
         self._new_valid_moves: dict[str, list[MoveCommand]] = {}
         max_moves_per_piece = self._max_moves_per_piece()
-        self._move_len = max(max_moves_per_piece.values())
+        self._move_len = max(max_moves_per_piece.values()) 
         for piece_name, moves in self._valid_moves.items():
             self._new_valid_moves[piece_name] = []
             for move in moves:
@@ -295,16 +295,15 @@ class Heuristic_AI(Player):
      
     def get_move(self):
         super().get_move()
-        caretaker = Caretaker(self._game)
         list_valid_moves: list[MoveCommand] = self._list_valid_moves()
         best_move = None
         best_score = float('-inf')
         for move in list_valid_moves:
-            caretaker.backup()
-            move.execute()
+            copy_game = self._game.copy()
+            copy_move = move.copy(copy_game)
+            copy_move.execute()
             score = self._heuristic_function()
             if score > best_score:
                 best_move = move
                 best_score = score
-            caretaker.undo()
         return best_move
