@@ -6,7 +6,7 @@ class MoveCommand():
         self._move_direction2 = move_direction2
         self._new_focus_era = new_focus_era
     
-    def copy_move(self, game):
+    def generate_version(self, game):
         piece_consistent_with_game = game.search_piece(self._piece.get_name())
         return MoveCommand(game, piece_consistent_with_game, self._move_direction1, self._move_direction2, self._new_focus_era)
     

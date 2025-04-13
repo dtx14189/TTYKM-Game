@@ -1,7 +1,6 @@
 import random
 from piece import Piece
 from move_command import MoveCommand
-from memento import Caretaker
 from enum_eras import Era
 
 class Player():
@@ -300,7 +299,7 @@ class Heuristic_AI(Player):
         best_score = float('-inf')
         for move in list_valid_moves:
             copy_game = self._game.copy()
-            copy_move = move.copy(copy_game)
+            copy_move = move.generate_version(copy_game)
             copy_move.execute()
             score = self._heuristic_function()
             if score > best_score:

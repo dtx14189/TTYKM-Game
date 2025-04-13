@@ -82,6 +82,7 @@ class Game():
 
     def copy(self):
         copy_game = Game(setup=False)
+        copy_game._turn = self._turn
         copy_game._board = self._board.copy()
         if self._current_player.get_color() == "white":
             copy_game._current_player = copy_game._board.get_player("white")
@@ -91,36 +92,4 @@ class Game():
             copy_game._other_player = copy_game._board.get_player("white")
         copy_game._setup_players()
         return copy_game
-    
-    def _copy_contents(self):
-        copy_board = self._board.copy()
-        if self._current_player.get_color() == "white":
-            copy_current_player = copy_board.get_player("white")
-            copy_other_player = copy_board.get_player("black")
-        elif self._current_player.get_color() == "black":
-            copy_current_player = copy_board.get_player("black")
-            copy_other_player = copy_board.get_player("white")
-
-        copy_current_player._opponent = copy_other_player
-        copy_other_player._opponent = copy_current_player
-
-        copy_current_player._game = self
-        copy_other_player._game = self
-
-        return self._turn, copy_board, copy_current_player, copy_other_player
-    
-    def save(self):
-        return Snapshot(self._copy_contents())
-    
-    def restore(self, snapshot: Snapshot):
-        self._unzip_state(snapshot.get_state())
-    
-    def _unzip_state(self, state):
-        self._turn = state[0]
-        self._board = state[1]
-        self._current_player = state[2]
-        self._other_player = state[3]
-
-
-
     
