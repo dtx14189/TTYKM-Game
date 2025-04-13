@@ -16,8 +16,11 @@ class MoveCommand():
             return 1
         return 0
     
-    def directions_match(self, directions):
-        return self._move_direction1 == directions[0] and self._move_direction2 == directions[1]
+    def directions_match(self, directions, move_number):
+        if move_number == 1:
+            return self._move_direction1 == directions[0]
+        else: # move_number = 0 or 2
+            return self._move_direction1 == directions[0] and self._move_direction2 == directions[1]
     
     def focus_era_match(self, focus_era):
         return self._new_focus_era == focus_era

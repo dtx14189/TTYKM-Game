@@ -74,10 +74,10 @@ class Game():
     def _copy(self):
         copy_game = Game(setup=False)
         copy_game._board = self._board.copy()
-        if self._current_player == "white":
+        if self._current_player.get_color() == "white":
             copy_game._current_player = copy_game._board.get_player("white")
             copy_game._other_player = copy_game._board.get_player("black")
-        elif self._current_player == "black":
+        elif self._current_player.get_color() == "black":
             copy_game._current_player = copy_game._board.get_player("black")
             copy_game._other_player = copy_game._board.get_player("white")
         copy_game._setup_players()

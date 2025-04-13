@@ -126,6 +126,9 @@ class Board():
 
     def _push(self, piece: Piece, direction):
         new_pos = Board._get_new_pos_with_direction(piece.get_pos(), direction)
+        if not self._valid_pos(new_pos):
+            self._eliminate(piece)
+            return 
         other_piece: Piece = self.get_piece_at_pos(new_pos)
         self._move(piece, new_pos)  
         if other_piece is not None:

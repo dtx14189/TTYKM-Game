@@ -253,10 +253,10 @@ class Human(Player):
             moves: list[MoveCommand] = self._valid_moves[piece_to_move]
             for move in moves:
                 if move_number == 1:
-                    if move.directions_match((direction, other_direction)):
+                    if move.directions_match((direction, other_direction), move_number):
                         return direction
                 elif move_number == 2:
-                    if move.directions_match((other_direction, direction)):
+                    if move.directions_match((other_direction, direction), move_number):
                         return direction
             print(f"Cannot move {direction}")
 
@@ -275,7 +275,7 @@ class Human(Player):
     def _find_move(self, piece_name, direction1, direction2, focus):
         moves: list[MoveCommand] = self._valid_moves[piece_name]
         for move in moves:
-            if move.directions_match((direction1, direction2)) and move.focus_era_match(focus):
+            if move.directions_match((direction1, direction2), self._move_len) and move.focus_era_match(focus):
                 return move
         return None
 class Random_AI(Player):
