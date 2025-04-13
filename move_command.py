@@ -23,4 +23,4 @@ class MoveCommand():
         return self._new_focus_era == focus_era
     
     def __str__(self):
-        return f"{self._piece}, {self._move_direction1}, {self._move_direction2}, {self._new_focus_era}"
+        return f"{self._piece},{self._move_direction1},{self._move_direction2},{self._new_focus_era}"

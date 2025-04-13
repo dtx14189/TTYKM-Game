@@ -2,18 +2,25 @@ from piece import Piece
 from move_command import MoveCommand
 from enum_eras import Era
 class Player():
-    def __init__(self, color: str, game):
+    def __init__(self, color: str, game, focus=None, supply=4):
         self._color = color
-        if color == "black":
-            # self._focus = Era.FUTURE
-            self._focus = 2
-        elif color == "white":
-            # self._focus = Era.PAST
-            self._focus = 0
+        if focus is None:
+            if color == "black":
+                # self._focus = Era.FUTURE
+                self._focus = 2
+            elif color == "white":
+                # self._focus = Era.PAST
+                self._focus = 0
+        else:
+            self._focus = focus
         self._game = game
         self._pieces: list[Piece] = []
-        self._supply = 4
+        self._supply = supply
         self._valid_moves = None
+
+    def copy(self):
+        player_copy = Player(self._color, self._game, self._focus, self._supply)
+        return player_copy
 
     def get_color(self):
         return self._color
