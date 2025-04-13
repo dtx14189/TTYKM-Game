@@ -41,7 +41,12 @@ class Player():
     
     def get_move(self):
         self._enumerate_possible_moves()
-        self._print_heuristics()
+        if self._color == "white":
+            self._print_heuristics()
+            self._opponent._print_heuristics()
+        elif self._color == "black":
+            self._opponent._print_heuristics()
+            self._print_heuristics()
     
     def change_focus_era(self, new_focus_era):
         self._focus = new_focus_era
@@ -97,6 +102,8 @@ class Player():
         return Player._indent_focus(self._focus) + self._color + "\n"
     
     def _heuristic_function(self):
+        if self._opponent.has_lost():
+            return 9999
         weight_era_prescence = 3
         weight_piece_advantage = 2
         weight_supply = 1
@@ -113,11 +120,11 @@ class Player():
     def _print_heuristics(self):
         result = []
         result.append(f"{self._color}'s score:")
-        result.append(f" {self._compute_era_prescence} eras,")
-        result.append(f" {self._compute_piece_advantage} advantage,")
-        result.append(f" {self._compute_supply} supply,")
-        result.append(f" {self._compute_centrality} centrality,")
-        result.append(f" {self._compute_focus} in focus")
+        result.append(f" {self._compute_era_prescence()} eras,")
+        result.append(f" {self._compute_piece_advantage()} advantage,")
+        result.append(f" {self._compute_supply()} supply,")
+        result.append(f" {self._compute_centrality()} centrality,")
+        result.append(f" {self._compute_focus()} in focus")
         print(''.join(result))
 
     def _compute_era_prescence(self):
