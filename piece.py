@@ -16,9 +16,10 @@ class Piece():
             if self._board.invalid_move(self, direction1):
                 continue
             board_copy = self._board.copy()
-            board_copy.update_pos(self._pos, direction1)
+            piece_copy = board_copy.get_piece_at_pos(self._pos)
+            board_copy.update(piece_copy, direction1)
             for direction2 in directions:
-                if board_copy.invalid_move(self, direction2):
+                if board_copy.invalid_move(piece_copy, direction2):
                     direction2 = None
                 for era in eras:
                     if era != focus:

@@ -8,12 +8,12 @@ class GameManager():
         self._move: MoveCommand = None
 
     def is_game_end(self):
-        return True
+        return self._game.is_game_end()
 
     def play_turn(self):
         self._move = self._game.get_move()
         self._move.execute()
-        print(self._move)
+        print(f"Selected move: {self._move}")
 
     def save(self):
         return Snapshot(self._zip_state())

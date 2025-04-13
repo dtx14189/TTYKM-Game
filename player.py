@@ -22,6 +22,12 @@ class Player():
         player_copy = Player(self._color, self._game, self._focus, self._supply)
         return player_copy
 
+    def has_lost(self):
+        eras = set()
+        for piece in self._pieces:
+            eras.add(piece.get_era())
+        return (len(eras) == 1)
+    
     def get_color(self):
         return self._color
     
@@ -82,7 +88,7 @@ class Human(Player):
         max_moves = max(max_moves_per_piece.values())
         if max_moves == 0:
             new_focus = self._prompt_focus_era()
-            return MoveCommand(None, None, None, new_focus)
+            return MoveCommand(self._game, None, None, None, new_focus)
         piece_to_move = self._prompt_piece_name(max_moves_per_piece, max_moves)
         direction1, direction2 = None, None
         for move_number in range(1, max_moves + 1):
@@ -152,7 +158,7 @@ class Human(Player):
                 elif move_number == 2:
                     if move.directions_match((other_direction, direction)):
                         return direction
-            print(f"Cannot move {direction}\n")
+            print(f"Cannot move {direction}")
 
     def _prompt_focus_era(self):
         focus_to_int = {"past": 0, "present": 1, "future": 2}

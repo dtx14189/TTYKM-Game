@@ -3,7 +3,7 @@ from enum_eras import Era
 from copy import deepcopy
 from player import Player
 class Board():
-    def __init__(self, size: int, white_player: Player, black_player: Player, setup=True):
+    def __init__(self, size: int, white_player: Player=None, black_player: Player=None, setup=True):
         self._size = size
         self._white_player: Player = white_player
         self._black_player: Player = black_player
@@ -16,6 +16,9 @@ class Board():
             black_piece = Piece("black", f'{i+1}', (0, 0, i), self)
             self._black_player.add_piece(black_piece)
             self._squares[0][0][i] = black_piece
+        # black_piece = Piece("black", "1", (0, 0, 0), self)
+        # self._black_player.add_piece(black_piece)
+        # self._squares[0][0][0] = black_piece
         for i in range(3):
             letter = chr(ord('A') + i)
             white_piece = Piece("white", f'{letter}', (self._size-1, self._size-1, i), self)
@@ -42,10 +45,10 @@ class Board():
         new_pos = Board._get_new_pos_with_direction(piece.get_pos(), direction)
         if not self._valid_pos(new_pos):
             return True
-        if piece.get_color() == self._get_piece_at_pos(new_pos):
+        if piece.get_color() == self.get_piece_at_pos(new_pos):
             return True
         if direction == 'f' or direction == 'b':
-            if self._get_piece_at_pos(new_pos):
+            if self.get_piece_at_pos(new_pos):
                 return True
             if direction == 'b':
                 player_to_check_supply = self._get_player_from_color(piece.get_color())
@@ -64,14 +67,14 @@ class Board():
         return True
     
     def copy(self):
-        board_copy = Board(self._size, None, None, False)
+        board_copy = Board(self._size, setup=False)
         board_copy._squares = deepcopy(self._squares)
         board_copy._white_player = self._white_player.copy()
         board_copy._black_player = self._black_player.copy()
         for i in range(board_copy._size):
             for j in range(board_copy._size):
                 for k in range(3):
-                    piece = board_copy._get_piece_at_pos((i, j, k))
+                    piece = board_copy.get_piece_at_pos((i, j, k))
                     if piece is not None:
                         player = board_copy._get_player_from_color(piece.get_color())
                         player.add_piece(piece)
@@ -85,9 +88,6 @@ class Board():
             self._time_travel(piece, direction)
         else:
             self._push(piece, direction)
-    
-    def update_pos(self, pos, direction):
-        self.update(self._get_piece_at_pos(pos), direction)
 
     def _time_travel(self, piece: Piece, direction):
         if direction == 'f':
@@ -119,7 +119,7 @@ class Board():
 
     def _push(self, piece: Piece, direction):
         new_pos = Board._get_new_pos_with_direction(piece.get_pos(), direction)
-        other_piece: Piece = self._get_piece_at_pos(new_pos)
+        other_piece: Piece = self.get_piece_at_pos(new_pos)
         self._move(piece, new_pos)  
         if other_piece is not None:
             if piece.get_color() == other_piece.get_color():
@@ -137,7 +137,7 @@ class Board():
         player_to_remove_from = self._get_player_from_color(piece.get_color())
         player_to_remove_from.remove_piece(piece)
 
-    def _get_piece_at_pos(self, pos):
+    def get_piece_at_pos(self, pos):
         row, col, era = pos[0], pos[1], pos[2]
         return self._squares[row][col][era]
     
