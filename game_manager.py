@@ -3,6 +3,7 @@ from game import Game
 from memento import Caretaker
 
 # sys.stdin = open("commands.txt")
+
 class GameManager():
     def __init__(self, white_player_type="human", black_player_type="human"):
         self._game = Game(white_player_type, black_player_type)
