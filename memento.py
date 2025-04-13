@@ -16,14 +16,23 @@ class Caretaker():
         self._undo_chain = []
         self._originator = originator
 
-    def backup(self):
+    def backup(self, type="next"):
+        if type == "next":
+            self._undo_chain = []
         self._history.append(self._originator.save())
 
     def undo(self):
-        if not len(self._history):
+        if len(self._history) == 0:
             return
-        
+        self._undo_chain.append(self._originator.save())
         memento = self._history.pop()
+        self._originator.restore(memento)
+
+    def redo(self):
+        if len(self._undo_chain) == 0:
+            return
+        self.backup(type="redo")
+        memento = self._undo_chain.pop()
         self._originator.restore(memento)
 
 
