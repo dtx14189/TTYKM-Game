@@ -2,9 +2,10 @@ import sys
 from game_manager import GameManager
 class CLI():
     def __init__(self):
-        self._game_manager = GameManager()
+        pass
 
     def run(self):
+        self._game_manager = GameManager()
         while True:
             self._display_game()
             self._game_end()

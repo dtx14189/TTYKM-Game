@@ -24,7 +24,8 @@ class Piece():
                 for era in eras:
                     if era != focus:
                         new_move = MoveCommand(game, self, direction1, direction2, era)
-                        valid_moves.append(new_move)
+                        if new_move not in valid_moves:
+                            valid_moves.append(new_move)
         return valid_moves
     
     def get_color(self):

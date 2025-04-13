@@ -1,6 +1,8 @@
+import random
 from piece import Piece
 from move_command import MoveCommand
 from enum_eras import Era
+
 class Player():
     def __init__(self, color: str, game, focus=None, supply=4):
         self._color = color
@@ -178,7 +180,11 @@ class Human(Player):
                 return move
         return None
 class Random_AI(Player):
-    pass
-
+    def get_move(self):
+        self._enumerate_possible_moves()
+        list_valid_moves = []
+        for moves in self._valid_moves.values():
+            list_valid_moves.append(moves)
+        return random.choice(self._valid_moves)
 class Heuristic_AI(Player):
     pass

@@ -22,5 +22,13 @@ class MoveCommand():
     def focus_era_match(self, focus_era):
         return self._new_focus_era == focus_era
     
+    def __eq__(self, other: 'MoveCommand'):
+        return (
+            self._piece == other._piece and 
+            self._move_direction1 == other._move_direction1 and 
+            self._move_direction2 == other._move_direction2 and 
+            self._new_focus_era == other._new_focus_era
+        )
+    
     def __str__(self):
         return f"{self._piece},{self._move_direction1},{self._move_direction2},{self._new_focus_era}"
