@@ -34,10 +34,12 @@ class Game():
         self._swap_players()
         self._turn += 1
     
-    def get_move(self):
+    def play_turn(self):
         if self._turn == 2:
             pass
-        return self._current_player.get_move()
+        move = self._current_player.get_move()
+        move.execute()
+        print(f"Selected move: {move}")
     
     def get_score(self):
         if self._current_player.get_color() == "white":
@@ -80,16 +82,38 @@ class Game():
         result = black_focus + str(self._board) + white_focus + turn_player
         return result
 
+    def _get_players_from_board(self, board: Board):
+        if self._current_player.get_color() == "white":
+            return board.get_player("white"), board.get_player("black")
+        elif self._current_player.get_color() == "black":
+            return board.get_player("black"), board.get_player("white")
+        
     def copy(self):
         copy_game = Game(setup=False)
         copy_game._turn = self._turn
         copy_game._board = self._board.copy()
-        if self._current_player.get_color() == "white":
-            copy_game._current_player = copy_game._board.get_player("white")
-            copy_game._other_player = copy_game._board.get_player("black")
-        elif self._current_player.get_color() == "black":
-            copy_game._current_player = copy_game._board.get_player("black")
-            copy_game._other_player = copy_game._board.get_player("white")
+        copy_game._current_player, copy_game._other_player = self._get_players_from_board(copy_game._board)
         copy_game._setup_players()
         return copy_game
+
+    def save(self):
+        copy_board = self._board.copy()
+        copy_current_player, copy_other_player = self._get_players_from_board(copy_board)
+
+        copy_current_player._opponent = copy_other_player
+        copy_other_player._opponent = copy_current_player
+
+        copy_current_player.assign_game(self)
+        copy_other_player.assign_game(self)
+
+        state = (self._turn, copy_board, copy_current_player, copy_other_player)
+        return Snapshot(state)
+
+    def restore(self, snapshot: Snapshot):
+        state = snapshot.get_state()
+        self._turn = state[0]
+        self._board = state[1]
+        self._current_player = state[2]
+        self._other_player = state[3]
+
     
