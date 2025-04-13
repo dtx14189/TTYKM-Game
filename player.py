@@ -80,7 +80,7 @@ class Human(Player):
         direction1, direction2 = None, None
         for move_number in range(1, max_moves + 1):
             if move_number == 1:
-                direction1 = self._prompt_move(piece_to_move, None)
+                direction1 = self._prompt_move(piece_to_move)
             elif move_number == 2:
                 direction2 = self._prompt_move(piece_to_move, direction1)
         new_focus = self._prompt_focus_era()
@@ -123,16 +123,16 @@ class Human(Player):
                 continue
             return piece_to_move
     
-    def _prompt_move(self, piece_to_move, prev_direction=None):
+    def _prompt_move(self, piece_to_move, other_direction=None):
         valid_directions = ['n', 'e', 's', 'w', 'f', 'b']
-        if prev_direction is None:
+        if other_direction is None:
             move_number = 1
             move_number_str = "first"
         else:
             move_number = 2
             move_number_str = "second"
-        while True:
             
+        while True:
             direction = input(f"Select the {move_number_str} direction to move ['n', 'e', 's', 'w', 'f', 'b']\n")
             if direction not in valid_directions:
                 print("Not a valid direction")
@@ -140,22 +140,21 @@ class Human(Player):
             moves = self._valid_moves[piece_to_move]
             for move in moves:
                 if move_number == 1:
-                    if move.directions_match((direction), move_number=1):
+                    if move.directions_match((direction, other_direction)):
                         return direction
                 elif move_number == 2:
-                    if move.directions_match((prev_direction, direction), move_number=2):
+                    if move.directions_match((other_direction, direction)):
                         return direction
             print(f"Cannot move {direction}\n")
 
     def _prompt_focus_era(self):
-        valid_focuses = ["past", "present", "future"]
         focus_to_int = {"past": 0, "present": 1, "future": 2}
         while True:
             new_focus = input("Select the next era to focus on ['past, 'present', 'future]\n")
-            if new_focus not in valid_focuses:
+            if new_focus not in focus_to_int:
                 print("Not a valid era")
                 continue
-            if self._focus == new_focus:
+            if self._focus == focus_to_int[new_focus]:
                 print("Cannot select the current era")
                 continue
             return focus_to_int[new_focus]
