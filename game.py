@@ -35,6 +35,8 @@ class Game():
         self._turn += 1
     
     def get_move(self):
+        if self._turn == 15:
+            pass
         return self._current_player.get_move()
     
     def get_score(self):

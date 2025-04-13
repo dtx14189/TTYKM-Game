@@ -1,5 +1,7 @@
 import sys
 from game_manager import GameManager
+
+# sys.stdin = open("commands.txt")
 class CLI():
     def __init__(self):
         pass

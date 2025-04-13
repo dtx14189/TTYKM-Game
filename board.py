@@ -45,10 +45,11 @@ class Board():
         new_pos = Board._get_new_pos_with_direction(piece.get_pos(), direction)
         if not self._valid_pos(new_pos):
             return True
-        if piece.get_color() == self.get_piece_at_pos(new_pos):
+        other_piece = self.get_piece_at_pos(new_pos)
+        if other_piece and (piece.get_color() == other_piece.get_color()):
             return True
         if direction == 'f' or direction == 'b':
-            if self.get_piece_at_pos(new_pos):
+            if other_piece:
                 return True
             if direction == 'b':
                 player_to_check_supply = self._get_player_from_color(piece.get_color())
@@ -130,7 +131,7 @@ class Board():
             self._eliminate(piece)
             return 
         other_piece: Piece = self.get_piece_at_pos(new_pos)
-        self._move(piece, new_pos)  
+        self._move(piece, new_pos)
         if other_piece is not None:
             if piece.get_color() == other_piece.get_color():
                 self._eliminate(piece)
@@ -147,7 +148,7 @@ class Board():
         player_to_remove_from = self._get_player_from_color(piece.get_color())
         player_to_remove_from.remove_piece(piece)
 
-    def get_piece_at_pos(self, pos):
+    def get_piece_at_pos(self, pos) -> Piece:
         row, col, era = pos[0], pos[1], pos[2]
         return self._squares[row][col][era]
     

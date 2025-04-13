@@ -47,6 +47,6 @@ class Piece():
 
     def get_era(self):
         return self._pos[2]
-        
+     
     def __str__(self):
         return f"{self._name}"
