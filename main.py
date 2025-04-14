@@ -14,7 +14,9 @@ class GameManager():
     def run(self):
         while True:
             self._display_game()
-            self._game_end()
+            if self._game_end():
+                self._reset()
+                self.run()
             self._play_turn()
     
     def turn_on_score_display(self):
@@ -33,17 +35,16 @@ class GameManager():
         if self._game.is_game_end():
             response = input("Play again?\n")
             if response == "yes":
-                self._reset()
+                return True
             else:
                 sys.exit(0)
-    
+        return False
+                   
     def _reset(self):
         self._game = Game(self._white_player_type, self._black_player_type)
-        self.run()
-
+        
     def _play_turn(self):
         self._game.play_turn()
-
 
 class UndoRedo(GameManager):
     def __init__(self, game_manager: GameManager):
@@ -52,16 +53,12 @@ class UndoRedo(GameManager):
     
     def run(self):
         while True:
-            self._display_game()
-            self._game_end()
+            self._game_manager._display_game()
+            if self._game_manager._game_end():
+                self._game_manager._reset()
+                self.run()
             self._play_turn()
 
-    def _display_game(self):
-        self._game_manager._display_game()
-
-    def _game_end(self):
-        self._game_manager._game_end()
-    
     def _play_turn(self):
         response = input("undo, redo, or next\n")
         if response == "undo":

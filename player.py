@@ -301,7 +301,8 @@ class Heuristic_AI(Player):
             copy_game = self._game.copy()
             copy_move = move.generate_version(copy_game)
             copy_move.execute()
-            score = self._heuristic_function()
+            copy_other_player = copy_game.get_players()[1]
+            score = copy_other_player._heuristic_function()
             if score > best_score:
                 best_move = move
                 best_score = score

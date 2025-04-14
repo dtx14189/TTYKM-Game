@@ -59,6 +59,9 @@ class Game():
                 print("white has won")
         return lost
     
+    def get_players(self):
+        return self._current_player, self._other_player
+    
     def _swap_players(self):
         temp = self._current_player
         self._current_player = self._other_player
