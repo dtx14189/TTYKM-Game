@@ -131,13 +131,14 @@ class Board():
             self._eliminate(piece)
             return 
         other_piece: Piece = self.get_piece_at_pos(new_pos)
-        self._move(piece, new_pos)
         if other_piece is not None:
             if piece.get_color() == other_piece.get_color():
                 self._eliminate(piece)
                 self._eliminate(other_piece)
+                return
             else: # colors are different
                 self._push(other_piece, direction)
+        self._move(piece, new_pos)
         
     def _move(self, piece: Piece, new_pos):
         self._set_piece_at_pos(None, piece.get_pos())

@@ -35,8 +35,8 @@ class Game():
         self._turn += 1
     
     def play_turn(self):
-        if self._turn == 2:
-            pass
+        # if self._turn == 7:
+        #     pass
         move = self._current_player.get_move()
         move.execute()
         print(f"Selected move: {move}")
