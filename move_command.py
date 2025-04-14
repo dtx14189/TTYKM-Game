@@ -42,4 +42,10 @@ class MoveCommand():
         )
     
     def __str__(self):
-        return f"{self._piece},{self._move_direction1},{self._move_direction2},{self._new_focus_era}"
+        if self._new_focus_era == 0:
+            new_focus_era_str = "past"
+        elif self._new_focus_era == 1:
+            new_focus_era_str = "present"
+        elif self._new_focus_era == 2:
+            new_focus_era_str = "future"
+        return f"{self._piece},{self._move_direction1},{self._move_direction2},{new_focus_era_str}"

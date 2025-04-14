@@ -51,7 +51,10 @@ class UndoRedo(GameManager):
         self._caretaker = Caretaker(game_manager.get_game())
     
     def run(self):
-        self._game_manager.run()
+        while True:
+            self._display_game()
+            self._game_end()
+            self._play_turn()
 
     def _display_game(self):
         self._game_manager._display_game()
