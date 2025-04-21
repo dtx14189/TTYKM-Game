@@ -1,7 +1,6 @@
 import random
 from piece import Piece
 from move_command import MoveCommand
-from enum_eras import Era
 
 class Player():
     def __init__(self, color: str, focus=None, supply=4):

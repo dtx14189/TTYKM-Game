@@ -3,7 +3,6 @@ from game import Game
 from memento import Caretaker
 
 # sys.stdin = open("commands.txt")
-
 class GameManager():
     def __init__(self, white_player_type="human", black_player_type="human"):
         self._white_player_type = white_player_type
@@ -15,7 +14,6 @@ class GameManager():
         while True:
             self._display_game()
             if self._game_end():
-                self._reset()
                 self.run()
             self._play_turn()
     
@@ -35,6 +33,7 @@ class GameManager():
         if self._game.is_game_end():
             response = input("Play again?\n")
             if response == "yes":
+                self._reset()
                 return True
             else:
                 sys.exit(0)
@@ -54,20 +53,20 @@ class UndoRedo(GameManager):
     def run(self):
         while True:
             self._game_manager._display_game()
-            if self._game_manager._game_end():
-                self._game_manager._reset()
-                self.run()
-            self._play_turn()
 
-    def _play_turn(self):
-        response = input("undo, redo, or next\n")
-        if response == "undo":
-            self._caretaker.undo()
-        elif response == "redo":
-            self._caretaker.redo()
-        elif response == "next":
-            self._caretaker.backup(type="next")
-            self._game_manager._play_turn()
+            response = input("undo, redo, or next\n")
+            if response == "undo":
+                self._caretaker.undo()
+                continue
+            elif response == "redo":
+                self._caretaker.redo()
+                continue
+            elif response == "next":
+                self._caretaker.backup(type="next")
+                if self._game_manager._game_end():
+                    self._caretaker = Caretaker(self._game_manager.get_game())
+                    self.run()
+                self._game_manager._play_turn()
 
 if __name__ == "__main__":
     if len(sys.argv) == 1:
