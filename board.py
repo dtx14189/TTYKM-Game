@@ -1,6 +1,4 @@
 from piece import Piece
-from enum_eras import Era
-from copy import deepcopy
 from player import Player
 class Board():
     def __init__(self, size: int, white_player: Player=None, black_player: Player=None, setup=True):
