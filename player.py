@@ -73,6 +73,10 @@ class Player():
         result.append(f" {self._compute_focus()} in focus")
         return ''.join(result)
     
+    def copy(self):
+        """Generate a deep copy of a player."""
+        raise NotImplementedError()
+    
     def _get_move(self):
         self._enumerate_possible_moves()
 
@@ -159,7 +163,7 @@ class Player():
     def _compute_centrality(self):
         num_central = 0
         for piece in self._pieces:
-            num_central += Heuristic_AI._is_central(piece.get_pos(), 4)
+            num_central += HeuristicAI._is_central(piece.get_pos(), 4)
         return num_central
     
     @staticmethod
@@ -172,9 +176,6 @@ class Player():
             if piece.get_era() == self._focus:
                 num_in_focus += 1
         return num_in_focus
-    
-    def _copy(self):
-        raise NotImplementedError()
     
     @staticmethod
     def _indent_focus(focus):
@@ -289,12 +290,12 @@ class Human(Player):
             if move.directions_match((direction1, direction2), self._move_len) and move.focus_era_match(focus):
                 return move
         return None
-class Random_AI(Player):
-    """Represent a random_AI player. This player randomly selects a move from the valid moves."""
+class RandomAI(Player):
+    """Represent a randomAI player. This player randomly selects a move from the valid moves."""
 
     def copy(self):
-        """Generate a deep copy of a random_AI player."""
-        copy_random_ai = Random_AI(self._color, self._focus, self._supply)
+        """Generate a deep copy of a randomAI player."""
+        copy_random_ai = RandomAI(self._color, self._focus, self._supply)
         copy_random_ai._copy_pieces_from_other(self)
         return copy_random_ai
     
@@ -303,13 +304,13 @@ class Random_AI(Player):
         will necessarily be valid."""
         super()._get_move()
         return random.choice(self._list_valid_moves())
-class Heuristic_AI(Player):
-    """Represent a heuristic_AI player. This player looks at each available move, calulates a
+class HeuristicAI(Player):
+    """Represent a heuristicAI player. This player looks at each available move, calulates a
     total move score for each, and picks the highest one, breaking any ties randomly."""
 
     def copy(self):
-        """Generate a deep copy of a heuristic_AI player."""
-        copy_heuristic_ai = Heuristic_AI(self._color, self._focus, self._supply)
+        """Generate a deep copy of a heuristicAI player."""
+        copy_heuristic_ai = HeuristicAI(self._color, self._focus, self._supply)
         copy_heuristic_ai._copy_pieces_from_other(self)
         return copy_heuristic_ai
 

@@ -1,5 +1,5 @@
 from board import Board
-from player import Player, Human, Random_AI, Heuristic_AI
+from player import Player, Human, RandomAI, HeuristicAI
 from memento import Snapshot
 class Game():
     """Represent a board game"""
@@ -11,7 +11,7 @@ class Game():
         This flag's main purpose is for deep copying."""
         if not setup:
             return
-        self._current_player = self._create_player("white", white_player_type)
+        self._current_player: Player = self._create_player("white", white_player_type)
         self._other_player: Player = self._create_player("black", black_player_type)
         self._setup_players()
         # self._current_player: Player = Human("black", self)
@@ -100,9 +100,9 @@ class Game():
         if type == "human":
             return Human(color)
         elif type == "random":
-            return Random_AI(color)
+            return RandomAI(color)
         elif type == "heuristic":
-            return Heuristic_AI(color)
+            return HeuristicAI(color)
         
     def _setup_players(self):
         self._current_player.set_opponent(self._other_player)
