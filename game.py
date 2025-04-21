@@ -2,7 +2,13 @@ from board import Board
 from player import Player, Human, Random_AI, Heuristic_AI
 from memento import Snapshot
 class Game():
+    """Represent a board game"""
+
     def __init__(self, white_player_type, black_player_type, setup=True):
+        """Intialize a game with a white player of the inputted type, and a black player
+        of the inputted type. A game tracks the turn number, as well as the current players
+        and the board. Setup is a flag that is false when we just want an empty Game object.
+        This flag's main purpose is for deep copying."""
         if not setup:
             return
         self._current_player = self._create_player("white", white_player_type)
@@ -14,6 +20,7 @@ class Game():
         self._turn = 1
 
     def update(self, piece, move_direction1, move_direction2, new_focus_era):
+        """Update a game with the inputted full-move accoridng to the rules of ttykm."""
         self._board.update(piece, move_direction1)
         self._board.update(piece, move_direction2)
         self._current_player.change_focus_era(new_focus_era)
@@ -21,11 +28,13 @@ class Game():
         self._turn += 1
 
     def play_turn(self):
+        """Play a turn of the game and print the move."""
         move = self._current_player.get_move()
         move.execute()
         print(f"Selected move: {move}")
 
     def get_score(self):
+        """Get the desired heuristic scores for both players."""
         if self._current_player.get_color() == "white":
             white_heuristics = self._current_player.get_heuristics()
             black_heuristics = self._other_player.get_heuristics()
@@ -35,6 +44,7 @@ class Game():
         return f"{white_heuristics}\n{black_heuristics}"
 
     def is_game_end(self):
+        """Determine if the game is over."""
         lost = self._current_player.has_lost()
         if lost:
             if self._current_player.get_color() == "white":
@@ -44,9 +54,11 @@ class Game():
         return lost
     
     def get_players(self):
+        """Get the players playing the game."""
         return self._current_player, self._other_player
     
     def search_piece(self, piece_name: str):
+        """Search the player's piece matching the input piece_name."""
         pieces = self._current_player.get_pieces() + self._other_player.get_pieces()
         for piece in pieces:
             if piece.get_name() == piece_name:
@@ -54,6 +66,7 @@ class Game():
         return None
     
     def copy(self):
+        """Generate a deep copy of the game, as well as a deep copy of its attributs."""
         copy_game = Game(None, None, setup=False)
         copy_game._turn = self._turn
         copy_game._board = self._board.copy()
@@ -62,6 +75,7 @@ class Game():
         return copy_game
 
     def save(self):
+        """Save the current state of the game in a snapshot."""
         copy_board = self._board.copy()
         copy_current_player, copy_other_player = self._get_players_from_board(copy_board)
 
@@ -75,6 +89,7 @@ class Game():
         return Snapshot(state)
 
     def restore(self, snapshot: Snapshot):
+        """Restore the game's state to that of the inputted snapshot."""
         state = snapshot.get_state()
         self._turn = state[0]
         self._board = state[1]

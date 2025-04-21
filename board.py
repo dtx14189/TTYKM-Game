@@ -1,7 +1,12 @@
 from piece import Piece
 from player import Player
 class Board():
+    """Represent a board of pieces that can be moved"""
+
     def __init__(self, size: int, white_player: Player=None, black_player: Player=None, setup=True):
+        """Intialize a 3-era board with width and height equal to the inputted size.
+        white_player and black_player are the two players playing on this board. 
+        Setup is a flag that is true if we want to setup the board like the start of ttykm"""
         self._size = size
         self._squares: list[list[list[Piece]]] = [[([None] * 3) for _ in range(size)] for _ in range(size)]
         if not setup:
@@ -11,6 +16,8 @@ class Board():
         self._setup()
 
     def invalid_move(self, piece: Piece, direction):
+        """Determine if a moving a given piece in a specificed direction is invalid
+        according to the rules of ttykm."""
         new_pos = Board._get_new_pos_with_direction(piece.get_pos(), direction)
         if not self._valid_pos(new_pos):
             return True
@@ -27,6 +34,7 @@ class Board():
         return False
     
     def copy(self):
+        """Generate a deep copy of the board, as well as a deep copy of its attributes"""
         board_copy = Board(self._size, setup=False)
         board_copy._white_player = self._white_player.copy()
         board_copy._black_player = self._black_player.copy()
@@ -42,12 +50,15 @@ class Board():
         return board_copy
     
     def get_player(self, color):
+        """Get the player of the inputted color playing on this board"""
         if color == "black":
             return self._black_player
         elif color == "white":
             return self._white_player
         
     def update(self, piece: Piece, direction):
+        """Update the board after the inputted piece is moved in the specified direction.
+        Note that the piece-direction must be valid."""
         if direction is None:
             return
         if direction == 'f' or direction == 'b':
@@ -56,6 +67,7 @@ class Board():
             self._push(piece, direction)
 
     def get_piece_at_pos(self, pos) -> Piece:
+        """Get the piece at the given pos."""
         row, col, era = pos[0], pos[1], pos[2]
         return self._squares[row][col][era]
     

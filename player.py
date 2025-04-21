@@ -3,7 +3,11 @@ from piece import Piece
 from move_command import MoveCommand
 
 class Player():
+    """Abstract representation of a player in a game."""
+
     def __init__(self, color: str, focus=None, supply=4):
+        """Initialize a player with inputted color, focus, and supply.
+        A player also stores a list of their pieces."""
         self._color = color
         if focus is None:
             if color == "black":
@@ -15,46 +19,51 @@ class Player():
         self._pieces: list[Piece] = []
         self._supply = supply
 
-    def copy(self):
-        raise NotImplementedError()
-
     def get_pieces(self):
+        """Get the player's pieces."""
         return self._pieces
     
     def has_lost(self):
+        """Check if the player has lost according to the rules of ttykm."""
         eras = set()
         for piece in self._pieces:
             eras.add(piece.get_era())
         return (len(eras) == 1)
 
     def assign_game(self, game):
+        """Assign a game to the player."""
         self._game = game
         
     def set_opponent(self, opponent: 'Player'):
+        """Set the player's opponent."""
         self._opponent = opponent
     
     def get_color(self):
+        """Get the color of the player."""
         return self._color
     
-    def get_move(self):
-        self._enumerate_possible_moves()
-    
     def change_focus_era(self, new_focus_era):
+        """Change focus era to new_focus_era."""
         self._focus = new_focus_era
     
     def add_piece(self, piece: Piece):
+        """Add piece to list of pieces."""
         self._pieces.append(piece)
 
     def remove_piece(self, piece: Piece):
+        """Remove piece from list of pieces."""
         self._pieces.remove(piece)
 
     def decrement_supply(self):
+        """Decrement supply by 1."""
         self._supply -= 1
     
     def get_supply(self):
+        """Get a player's supply."""
         return self._supply
     
     def get_heuristics(self):
+        """Compute desired heurstics about a player's position in a game."""
         result = []
         result.append(f"{self._color}'s score:")
         result.append(f" {self._compute_era_prescence()} eras,")
@@ -64,6 +73,9 @@ class Player():
         result.append(f" {self._compute_focus()} in focus")
         return ''.join(result)
     
+    def _get_move(self):
+        self._enumerate_possible_moves()
+
     def _enumerate_possible_moves(self):
         self._valid_moves: dict[str, list[MoveCommand]] = {}
         for piece in self._pieces:
@@ -161,6 +173,9 @@ class Player():
                 num_in_focus += 1
         return num_in_focus
     
+    def _copy(self):
+        raise NotImplementedError()
+    
     @staticmethod
     def _indent_focus(focus):
         if focus == 0:
@@ -174,13 +189,18 @@ class Player():
         return Player._indent_focus(self._focus) + self._color + "  \n"
     
 class Human(Player):
+    """Represent a human player, one that makes moves based on human input."""
+
     def copy(self):
+        """Generate a deep copy of a human player."""
         copy_human = Human(self._color, self._focus, self._supply)
         copy_human._copy_pieces_from_other(self)
         return copy_human
     
     def get_move(self):
-        super().get_move()
+        """Get a move by prompting the user and storing their choices.
+        The returned move will necessarily be valid."""
+        super()._get_move()
         if self._move_len == 0:
             print("No copies to move")
             new_focus = self._prompt_focus_era()
@@ -270,22 +290,33 @@ class Human(Player):
                 return move
         return None
 class Random_AI(Player):
+    """Represent a random_AI player. This player randomly selects a move from the valid moves."""
+
     def copy(self):
+        """Generate a deep copy of a random_AI player."""
         copy_random_ai = Random_AI(self._color, self._focus, self._supply)
         copy_random_ai._copy_pieces_from_other(self)
         return copy_random_ai
     
     def get_move(self):
-        super().get_move()
+        """Get a move by selecting randomly from the valid move. The returned move
+        will necessarily be valid."""
+        super()._get_move()
         return random.choice(self._list_valid_moves())
 class Heuristic_AI(Player):
+    """Represent a heuristic_AI player. This player looks at each available move, calulates a
+    total move score for each, and picks the highest one, breaking any ties randomly."""
+
     def copy(self):
+        """Generate a deep copy of a heuristic_AI player."""
         copy_heuristic_ai = Heuristic_AI(self._color, self._focus, self._supply)
         copy_heuristic_ai._copy_pieces_from_other(self)
         return copy_heuristic_ai
-     
+
     def get_move(self):
-        super().get_move()
+        """Get a move by selecting from the moves that give the higehst score. 
+        The returned move will necessarily be valid."""
+        super()._get_move()
         list_valid_moves: list[MoveCommand] = self._list_valid_moves()
         best_moves = []
         best_score = float('-inf')
