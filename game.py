@@ -13,34 +13,18 @@ class Game():
         self._board = Board(4, white_player=self._current_player, black_player=self._other_player)
         self._turn = 1
 
-    def _create_player(self, color: str, type: str):
-        if type == "human":
-            return Human(color)
-        elif type == "random":
-            return Random_AI(color)
-        elif type == "heuristic":
-            return Heuristic_AI(color)
-        
-    def _setup_players(self):
-        self._current_player.set_opponent(self._other_player)
-        self._other_player.set_opponent(self._current_player)
-        self._current_player.assign_game(self)
-        self._other_player.assign_game(self)
-
     def update(self, piece, move_direction1, move_direction2, new_focus_era):
         self._board.update(piece, move_direction1)
         self._board.update(piece, move_direction2)
         self._current_player.change_focus_era(new_focus_era)
         self._swap_players()
         self._turn += 1
-    
+
     def play_turn(self):
-        # if self._turn == 7:
-        #     pass
         move = self._current_player.get_move()
         move.execute()
         print(f"Selected move: {move}")
-    
+
     def get_score(self):
         if self._current_player.get_color() == "white":
             white_heuristics = self._current_player.get_heuristics()
@@ -62,35 +46,13 @@ class Game():
     def get_players(self):
         return self._current_player, self._other_player
     
-    def _swap_players(self):
-        temp = self._current_player
-        self._current_player = self._other_player
-        self._other_player = temp
-        
     def search_piece(self, piece_name: str):
         pieces = self._current_player.get_pieces() + self._other_player.get_pieces()
         for piece in pieces:
             if piece.get_name() == piece_name:
                 return piece
         return None
-
-    def __str__(self):
-        if self._current_player.get_color() == "black":
-            black_focus = str(self._current_player)
-            white_focus = str(self._other_player)
-        elif self._current_player.get_color() == "white":
-            black_focus = str(self._other_player)
-            white_focus = str(self._current_player)
-        turn_player = f"Turn: {self._turn}, Current player: {self._current_player.get_color()}"
-        result = black_focus + str(self._board) + white_focus + turn_player
-        return result
-
-    def _get_players_from_board(self, board: Board):
-        if self._current_player.get_color() == "white":
-            return board.get_player("white"), board.get_player("black")
-        elif self._current_player.get_color() == "black":
-            return board.get_player("black"), board.get_player("white")
-        
+    
     def copy(self):
         copy_game = Game(None, None, setup=False)
         copy_game._turn = self._turn
@@ -118,5 +80,43 @@ class Game():
         self._board = state[1]
         self._current_player = state[2]
         self._other_player = state[3]
+    
+    def _create_player(self, color: str, type: str):
+        if type == "human":
+            return Human(color)
+        elif type == "random":
+            return Random_AI(color)
+        elif type == "heuristic":
+            return Heuristic_AI(color)
+        
+    def _setup_players(self):
+        self._current_player.set_opponent(self._other_player)
+        self._other_player.set_opponent(self._current_player)
+        self._current_player.assign_game(self)
+        self._other_player.assign_game(self)    
+    
+    def _swap_players(self):
+        temp = self._current_player
+        self._current_player = self._other_player
+        self._other_player = temp
+
+    def __str__(self):
+        if self._current_player.get_color() == "black":
+            black_focus = str(self._current_player)
+            white_focus = str(self._other_player)
+        elif self._current_player.get_color() == "white":
+            black_focus = str(self._other_player)
+            white_focus = str(self._current_player)
+        turn_player = f"Turn: {self._turn}, Current player: {self._current_player.get_color()}"
+        result = black_focus + str(self._board) + white_focus + turn_player
+        return result
+
+    def _get_players_from_board(self, board: Board):
+        if self._current_player.get_color() == "white":
+            return board.get_player("white"), board.get_player("black")
+        elif self._current_player.get_color() == "black":
+            return board.get_player("black"), board.get_player("white")
+        
+    
 
     

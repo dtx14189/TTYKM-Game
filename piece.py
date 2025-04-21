@@ -14,7 +14,6 @@ class Piece():
     def enumerate_possible_moves(self, focus, game):
         valid_moves = []
         directions = ['n', 'e', 's', 'w', 'f', 'b']
-        # eras = [Era.PAST, Era.PRESENT, Era.FUTURE]
         eras = [0, 1, 2]
         for direction1 in directions:
             if self._board.invalid_move(self, direction1):

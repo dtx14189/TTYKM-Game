@@ -7,10 +7,8 @@ class Player():
         self._color = color
         if focus is None:
             if color == "black":
-                # self._focus = Era.FUTURE
                 self._focus = 2
             elif color == "white":
-                # self._focus = Era.PAST
                 self._focus = 0
         else:
             self._focus = focus
@@ -19,10 +17,6 @@ class Player():
 
     def copy(self):
         raise NotImplementedError()
-
-    def _copy_pieces_from_other(self, other: 'Player'):
-        for piece in other._pieces:
-            self._pieces.append(piece.copy())
 
     def get_pieces(self):
         return self._pieces
@@ -47,12 +41,6 @@ class Player():
     
     def change_focus_era(self, new_focus_era):
         self._focus = new_focus_era
-
-    def _get_piece_names(self):
-        piece_names = []
-        for piece in self._pieces:
-            piece_names.append(piece.get_name())
-        return piece_names
     
     def add_piece(self, piece: Piece):
         self._pieces.append(piece)
@@ -65,6 +53,16 @@ class Player():
     
     def get_supply(self):
         return self._supply
+    
+    def get_heuristics(self):
+        result = []
+        result.append(f"{self._color}'s score:")
+        result.append(f" {self._compute_era_prescence()} eras,")
+        result.append(f" {self._compute_piece_advantage()} advantage,")
+        result.append(f" {self._compute_supply()} supply,")
+        result.append(f" {self._compute_centrality()} centrality,")
+        result.append(f" {self._compute_focus()} in focus")
+        return ''.join(result)
     
     def _enumerate_possible_moves(self):
         self._valid_moves: dict[str, list[MoveCommand]] = {}
@@ -108,23 +106,15 @@ class Player():
             list_valid_moves += moves
         return list_valid_moves
     
-    @staticmethod
-    def _indent_focus(focus):
-        # if focus == Era.PAST:
-        #     return ' ' * 2
-        # elif focus == Era.PRESENT:
-        #     return ' ' * 14
-        # elif focus == Era.FUTURE:
-        #     return ' ' * 26
-        if focus == 0:
-            return ' ' * 2
-        elif focus == 1:
-            return ' ' * 14
-        elif focus == 2:
-            return ' ' * 26
-        
-    def __str__(self):
-        return Player._indent_focus(self._focus) + self._color + "  \n"
+    def _get_piece_names(self):
+        piece_names = []
+        for piece in self._pieces:
+            piece_names.append(piece.get_name())
+        return piece_names
+    
+    def _copy_pieces_from_other(self, other: 'Player'):
+        for piece in other._pieces:
+            self._pieces.append(piece.copy())
     
     def _heuristic_function(self):
         if self._opponent.has_lost():
@@ -141,16 +131,6 @@ class Player():
             weight_centrality * self._compute_centrality() +
             weight_focus * self._compute_focus()
         )
-    
-    def get_heuristics(self):
-        result = []
-        result.append(f"{self._color}'s score:")
-        result.append(f" {self._compute_era_prescence()} eras,")
-        result.append(f" {self._compute_piece_advantage()} advantage,")
-        result.append(f" {self._compute_supply()} supply,")
-        result.append(f" {self._compute_centrality()} centrality,")
-        result.append(f" {self._compute_focus()} in focus")
-        return ''.join(result)
 
     def _compute_era_prescence(self):
         eras = set()
@@ -180,6 +160,19 @@ class Player():
             if piece.get_era() == self._focus:
                 num_in_focus += 1
         return num_in_focus
+    
+    @staticmethod
+    def _indent_focus(focus):
+        if focus == 0:
+            return ' ' * 2
+        elif focus == 1:
+            return ' ' * 14
+        elif focus == 2:
+            return ' ' * 26
+        
+    def __str__(self):
+        return Player._indent_focus(self._focus) + self._color + "  \n"
+    
 class Human(Player):
     def copy(self):
         copy_human = Human(self._color, self._focus, self._supply)

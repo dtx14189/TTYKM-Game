@@ -10,6 +10,55 @@ class Board():
         self._black_player: Player = black_player
         self._setup()
 
+    def invalid_move(self, piece: Piece, direction):
+        new_pos = Board._get_new_pos_with_direction(piece.get_pos(), direction)
+        if not self._valid_pos(new_pos):
+            return True
+        other_piece = self.get_piece_at_pos(new_pos)
+        if other_piece and (piece.get_color() == other_piece.get_color()):
+            return True
+        if direction == 'f' or direction == 'b':
+            if other_piece:
+                return True
+            if direction == 'b':
+                player_to_check_supply = self._get_player_from_color(piece.get_color())
+                if player_to_check_supply.get_supply() <= 0:
+                    return True
+        return False
+    
+    def copy(self):
+        board_copy = Board(self._size, setup=False)
+        board_copy._white_player = self._white_player.copy()
+        board_copy._black_player = self._black_player.copy()
+
+        for piece in board_copy._white_player.get_pieces():
+            board_copy._set_piece_at_pos(piece, piece.get_pos())
+            piece.assign_board(board_copy)
+
+        for piece in board_copy._black_player.get_pieces():
+            board_copy._set_piece_at_pos(piece, piece.get_pos())
+            piece.assign_board(board_copy)
+
+        return board_copy
+    
+    def get_player(self, color):
+        if color == "black":
+            return self._black_player
+        elif color == "white":
+            return self._white_player
+        
+    def update(self, piece: Piece, direction):
+        if direction is None:
+            return
+        if direction == 'f' or direction == 'b':
+            self._time_travel(piece, direction)
+        else:
+            self._push(piece, direction)
+
+    def get_piece_at_pos(self, pos) -> Piece:
+        row, col, era = pos[0], pos[1], pos[2]
+        return self._squares[row][col][era]
+    
     def _setup(self):
         for i in range(3):
             black_piece = Piece("black", f'{i+1}', (0, 0, i))
@@ -38,22 +87,6 @@ class Board():
             return (row, col, era + 1)
         elif direction == 'b':
             return (row, col, era - 1)
-    
-    def invalid_move(self, piece: Piece, direction):
-        new_pos = Board._get_new_pos_with_direction(piece.get_pos(), direction)
-        if not self._valid_pos(new_pos):
-            return True
-        other_piece = self.get_piece_at_pos(new_pos)
-        if other_piece and (piece.get_color() == other_piece.get_color()):
-            return True
-        if direction == 'f' or direction == 'b':
-            if other_piece:
-                return True
-            if direction == 'b':
-                player_to_check_supply = self._get_player_from_color(piece.get_color())
-                if player_to_check_supply.get_supply() <= 0:
-                    return True
-        return False
 
     def _valid_pos(self, pos) -> bool:
         row, col, era = pos[0], pos[1], pos[2]
@@ -64,35 +97,6 @@ class Board():
         if era < 0 or era > 2:
             return False
         return True
-    
-    def copy(self):
-        board_copy = Board(self._size, setup=False)
-        board_copy._white_player = self._white_player.copy()
-        board_copy._black_player = self._black_player.copy()
-
-        for piece in board_copy._white_player.get_pieces():
-            board_copy._set_piece_at_pos(piece, piece.get_pos())
-            piece.assign_board(board_copy)
-
-        for piece in board_copy._black_player.get_pieces():
-            board_copy._set_piece_at_pos(piece, piece.get_pos())
-            piece.assign_board(board_copy)
-
-        return board_copy
-
-    def get_player(self, color):
-        if color == "black":
-            return self._black_player
-        elif color == "white":
-            return self._white_player
-        
-    def update(self, piece: Piece, direction):
-        if direction is None:
-            return
-        if direction == 'f' or direction == 'b':
-            self._time_travel(piece, direction)
-        else:
-            self._push(piece, direction)
 
     def _time_travel(self, piece: Piece, direction):
         if direction == 'f':
@@ -146,10 +150,6 @@ class Board():
         self._set_piece_at_pos(None, piece.get_pos())
         player_to_remove_from = self._get_player_from_color(piece.get_color())
         player_to_remove_from.remove_piece(piece)
-
-    def get_piece_at_pos(self, pos) -> Piece:
-        row, col, era = pos[0], pos[1], pos[2]
-        return self._squares[row][col][era]
     
     def _set_piece_at_pos(self, piece: Piece, new_pos):
         new_row, new_col, new_era = new_pos[0], new_pos[1], new_pos[2]
