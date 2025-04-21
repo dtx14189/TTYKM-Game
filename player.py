@@ -294,7 +294,7 @@ class Heuristic_AI(Player):
     def get_move(self):
         super().get_move()
         list_valid_moves: list[MoveCommand] = self._list_valid_moves()
-        best_move = None
+        best_moves = []
         best_score = float('-inf')
         for move in list_valid_moves:
             copy_game = self._game.copy()
@@ -303,6 +303,9 @@ class Heuristic_AI(Player):
             copy_other_player = copy_game.get_players()[1]
             score = copy_other_player._heuristic_function()
             if score > best_score:
-                best_move = move
+                best_moves.clear()
+                best_moves.append(move)
                 best_score = score
-        return best_move
+            elif score == best_score:
+                best_moves.append(move)
+        return random.choice(best_moves)
