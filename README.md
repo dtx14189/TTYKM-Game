@@ -1,3 +1,2 @@
-# CPSC_327_hw5
-
-# Template, Command, Memento, Decorator
+# TTYKM Board Game Implementation
+Design Patterns: Template, Command, Memento, Decorator
